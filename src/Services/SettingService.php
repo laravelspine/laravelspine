@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Spine\Services;
 
 use Spine\Models\Setting;
+use Spine\Events\SettingUpdated;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 /**
@@ -35,14 +36,20 @@ class SettingService
         if ($existing) {
             $existing->value = $value;
             $existing->save();
+            SettingUpdated::dispatch($existing, false);
+
             return $existing;
         }
 
-        return Setting::create([
+        $setting = Setting::create([
             'key'       => $key,
             'value'     => $value,
             'tenant_id' => $tenantId,
         ]);
+
+        SettingUpdated::dispatch($setting, true);
+
+        return $setting;
     }
 
     /**

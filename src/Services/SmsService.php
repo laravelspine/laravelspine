@@ -7,6 +7,7 @@ namespace Spine\Services;
 use Spine\Services\Sms\LogSmsDriver;
 use Spine\Services\Sms\SmsDriver;
 use Spine\Services\Sms\TwilioSmsDriver;
+use Spine\Events\SmsSent;
 use Illuminate\Support\Facades\Config;
 
 /**
@@ -88,6 +89,10 @@ class SmsService
             return ['success' => false, 'message' => 'to dan body wajib diisi'];
         }
 
-        return $this->driver($driver)->send($to, $body);
+        $result = $this->driver($driver)->send($to, $body);
+
+        SmsSent::dispatch($to, $body, $driver, $result);
+
+        return $result;
     }
 }

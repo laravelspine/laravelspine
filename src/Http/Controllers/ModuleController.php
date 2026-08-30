@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace Spine\Http\Controllers;
 
 use Spine\Services\ModuleService;
+use Spine\Events\ModuleActivated;
+use Spine\Events\ModuleDeactivated;
+use Spine\Events\ModuleInstalled;
+use Spine\Events\ModuleUninstalled;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -91,6 +95,8 @@ class ModuleController extends Controller
             return response()->json(['message' => 'Module not found'], 404);
         }
 
+        ModuleActivated::dispatch($name);
+
         return response()->json(['message' => "Module '{$name}' enabled", 'enabled' => true]);
     }
 
@@ -111,6 +117,8 @@ class ModuleController extends Controller
         if (!$disabled) {
             return response()->json(['message' => 'Module not found'], 404);
         }
+
+        ModuleDeactivated::dispatch($name);
 
         return response()->json(['message' => "Module '{$name}' disabled", 'enabled' => false]);
     }
@@ -173,6 +181,8 @@ class ModuleController extends Controller
             ], 422);
         }
 
+        ModuleInstalled::dispatch($module['name'], $module);
+
         return response()->json([
             'message' => "Module '{$module['name']}' installed",
             'data'    => $module,
@@ -199,6 +209,8 @@ class ModuleController extends Controller
         if (!$ok) {
             return response()->json(['message' => 'Module not found'], 404);
         }
+
+        ModuleUninstalled::dispatch($name, $purge);
 
         return response()->json([
             'message' => "Module '{$name}' uninstalled",
