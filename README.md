@@ -1,16 +1,35 @@
-## Hi there 👋
+# Laravel Spine
 
-<!--
-**laravelspine/Laravelspine** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
+**The modular core for building business applications.**
 
-Here are some ideas to get you started:
+API-first, modular core untuk Laravel. Infrastruktur lintas-modul (settings,
+activity log, meta, files, relations, mail, pdf, sms, qr-code, excel, tags,
+gdpr, payment gateway, module manager) + API versioning v1 + Sanctum + Scribe
+docs + list API query-builder + realtime Reverb. Siap dipasangi modul bisnis
+via nwidart/laravel-modules.
 
-- 🔭 I’m currently working on ...
-- 🌱 I’m currently learning ...
-- 👯 I’m looking to collaborate on ...
-- 🤔 I’m looking for help with ...
-- 💬 Ask me about ...
-- 📫 How to reach me: ...
-- 😄 Pronouns: ...
-- ⚡ Fun fact: ...
--->
+Core TIDAK pernah berisi kode modul — modul hidup terpisah dan di-mount.
+
+## Install
+
+```bash
+composer require spine/laravel-spine
+```
+
+## Struktur
+
+```
+src/
+├── SpineServiceProvider.php
+├── Services/          # SettingService, ActivityLogService, FileService, ...
+├── Support/Helpers/   # Str, Number, Time
+├── Traits/            # HasMetaData
+├── Http/Controllers/  # 17 controller API
+└── Models/            # Setting, ActivityLog, CustomMeta, Attachment, ...
+routes/api.php         # endpoint generik /api/v1/*
+database/migrations/   # settings, activity_logs, custom_meta, attachments, tag_tables
+```
+
+## Lisensi
+
+MIT
