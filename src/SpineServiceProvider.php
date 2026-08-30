@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Spine;
 
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
 class SpineServiceProvider extends ServiceProvider
@@ -22,14 +23,21 @@ class SpineServiceProvider extends ServiceProvider
     /**
      * Routes generik (settings, activity-logs, meta, files, relations, mail,
      * pdf, sms, qr-code, excel, tags, modules, system, payment, number-to-word,
-     * gdpr) — dimuat otomatis dari package saat ada.
+     * gdpr) — dimuat otomatis dari package.
+     *
+     * Dibungkus group 'api' + prefix 'api' (default Laravel) — isi file
+     * menambah prefix 'v1' sehingga endpoint jadi /api/v1/*.
      */
     private function loadRoutes(): void
     {
         $routes = __DIR__ . '/../routes/api.php';
-        if (is_file($routes)) {
-            $this->loadRoutesFrom($routes);
+        if (! is_file($routes)) {
+            return;
         }
+
+        Route::middleware('api')->prefix('api')->group(function () use ($routes) {
+            $this->loadRoutesFrom($routes);
+        });
     }
 
     private function loadMigrations(): void
