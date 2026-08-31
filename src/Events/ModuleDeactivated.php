@@ -5,7 +5,7 @@ namespace Spine\Events;
 use Illuminate\Foundation\Events\Dispatchable;
 
 /**
- * Modul dinonaktifkan (Perfex: module_deactivated).
+ * Fired after a module has been disabled.
  */
 class ModuleDeactivated
 {

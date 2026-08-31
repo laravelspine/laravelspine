@@ -5,9 +5,9 @@ namespace Spine\Events;
 use Illuminate\Foundation\Events\Dispatchable;
 
 /**
- * SMS terkirim (Perfex: sms_trigger_triggered / SMS provider events).
+ * Fired after an SMS has been sent.
  *
- * Dispatch di SmsService::send() setelah driver selesai.
+ * Dispatched from SmsService::send() once the driver has completed.
  */
 class SmsSent
 {

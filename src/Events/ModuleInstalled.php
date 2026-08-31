@@ -5,7 +5,7 @@ namespace Spine\Events;
 use Illuminate\Foundation\Events\Dispatchable;
 
 /**
- * Modul berhasil di-install (Perfex: module_installed).
+ * Fired after a module has been installed from a zip archive.
  */
 class ModuleInstalled
 {

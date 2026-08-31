@@ -65,9 +65,9 @@ Follow this checklist whenever Spine needs a new extension point:
 4. Keep events **synchronous by default**; if listeners must not block the
    request, implement `ShouldQueue` on the listener (not the event).
 
-## Legacy reference (Perfex migration)
+## Migration reference
 
-Hooks from the legacy CRM map to Laravel primitives as follows:
+Hooks from legacy CRMs map to Laravel primitives as follows:
 
 | Legacy | Spine / Laravel |
 |--------|-----------------|

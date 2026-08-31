@@ -13,12 +13,12 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Cache;
 
 /**
- * PdfExportJob — generate banyak PDF + zip secara background (proses berat).
+ * Generate many PDFs and bundle them into a zip in the background.
  *
- * Sesuai prinsip: proses berat tidak dijalankan langsung di HTTP request.
- * Client mendapatkan path hasil setelah job selesai (polling/query).
+ * Heavy work must not run inside the HTTP request. The client polls for
+ * the result path after the job finishes.
  *
- * Diadopsi dari `App_bulk_pdf_export.php` PerfexCRM.
+ * Adopted from the legacy `App_bulk_pdf_export` bulk-export helper.
  */
 class PdfExportJob implements ShouldQueue
 {
@@ -46,7 +46,7 @@ class PdfExportJob implements ShouldQueue
             'prefix' => $this->prefix,
         ]);
 
-        // Hasil dicatat agar bisa dipantau (opsional: simpan ke cache/event).
+        // Cache the result so the client can poll for it.
         Cache::put(
             'pdf_export_result_'.md5(json_encode($this->documents)),
             $result,

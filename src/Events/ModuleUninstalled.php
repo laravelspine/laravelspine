@@ -5,7 +5,7 @@ namespace Spine\Events;
 use Illuminate\Foundation\Events\Dispatchable;
 
 /**
- * Modul di-uninstall (Perfex: module_uninstalled).
+ * Fired after a module has been uninstalled.
  */
 class ModuleUninstalled
 {

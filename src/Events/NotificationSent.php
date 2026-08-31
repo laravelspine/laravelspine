@@ -8,11 +8,11 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
 /**
- * Notifikasi realtime per user.
+ * Real-time notification broadcast to a single user.
  *
- * Broadcast ke private channel `user.{id}` dengan nama event
- * `notification.sent` (broadcastAs). Frontend mendengarkan channel ini
- * via laravel-echo → Reverb, lalu menampilkan desktop notification
+ * Broadcast to the private channel `user.{id}` with event name
+ * `notification.sent` (broadcastAs). The frontend listens on this channel
+ * via laravel-echo → Reverb and shows a desktop notification
  * (browser Notification API).
  */
 class NotificationSent implements ShouldBroadcastNow

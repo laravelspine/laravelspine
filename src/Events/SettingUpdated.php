@@ -6,10 +6,10 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Spine\Models\Setting;
 
 /**
- * Setting disimpan/diperbarui (Perfex: settings save hooks).
+ * Fired when a setting is created or updated.
  *
- * Dispatch di SettingService::set() — listener bisa bereaksi
- * (invalidasi cache, sinkronisasi, audit) tanpa mengubah service.
+ * Dispatched from SettingService::set() so listeners can react
+ * (cache invalidation, downstream sync, auditing) without touching the service.
  */
 class SettingUpdated
 {
