@@ -171,10 +171,16 @@ class FileService
         ?int $tenantId = null,
         string $disk = 'local'
     ): string {
+        \Spine\Events\FileUploading::dispatch($file, $relType, $relId, $tenantId, $disk);
+
         $dir = 'tenants/' . ($tenantId ?? 'global') . '/' . $relType . '/' . $relId;
         $name = $this->unique_filename($file->getClientOriginalName());
 
-        return $file->storeAs($dir, $name, $disk);
+        $path = $file->storeAs($dir, $name, $disk);
+
+        \Spine\Events\FileUploaded::dispatch($path, $relType, $relId, $tenantId, $disk);
+
+        return $path;
     }
 
     /**

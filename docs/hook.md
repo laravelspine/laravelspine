@@ -18,6 +18,11 @@ is added** (see [Adding a new hook](#adding-a-new-hook)).
 | `Spine\Events\ModuleActivated` | A module was enabled | `ModuleController::enable()` | `string $name` |
 | `Spine\Events\ModuleDeactivated` | A module was disabled | `ModuleController::disable()` | `string $name` |
 | `Spine\Events\NotificationSent` | A realtime notification is broadcast to a user (Reverb) | `BroadcastController` | `int $userId`, `string $title`, `string $message`, `string $type`, `array $data` |
+| `Spine\Events\FileUploading` | Before a file is stored; listeners may **reject** the upload by throwing | `FileService::storeUpload()` | `UploadedFile $file`, `string $relType`, `int $relId`, `?int $tenantId`, `string $disk` |
+| `Spine\Events\FileUploaded` | After a file is stored | `FileService::storeUpload()` | `string $path`, `string $relType`, `int $relId`, `?int $tenantId`, `string $disk` |
+
+> Note: `FileUploading` is a veto point — throw `ValidationException` inside a
+> listener to abort the upload before it reaches storage.
 
 ## Listening to events
 
