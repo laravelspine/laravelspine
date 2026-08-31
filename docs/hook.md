@@ -65,14 +65,12 @@ Follow this checklist whenever Spine needs a new extension point:
 4. Keep events **synchronous by default**; if listeners must not block the
    request, implement `ShouldQueue` on the listener (not the event).
 
-## Migration reference
+## Related Laravel primitives
 
-Hooks from legacy CRMs map to Laravel primitives as follows:
-
-| Legacy | Spine / Laravel |
-|--------|-----------------|
-| `hooks()->do_action('name', $args)` | Laravel event (this registry) |
-| `hooks()->apply_filters('name', $value)` | `Illuminate\Pipeline` / Eloquent model lifecycle events (per-module) |
-| Bootstrap hooks (`application/hooks/`) | `ServiceProvider::boot()` + middleware |
-| Auth hooks (`after_staff_login`, ...) | `Illuminate\Auth\Events\Login` / `Logout` / `PasswordReset` |
-| Mail hooks (`email_template_sent`, ...) | `Illuminate\Mail\Events\MessageSent` / `MessageSending` |
+| Pattern | Laravel equivalent |
+|---------|--------------------|
+| Fire-and-forget action | Laravel event (this registry) |
+| Value-mutating filter | `Illuminate\Pipeline` / Eloquent model lifecycle events |
+| Bootstrap / startup hook | `ServiceProvider::boot()` + middleware |
+| Auth lifecycle | `Illuminate\Auth\Events\Login` / `Logout` / `PasswordReset` |
+| Mail lifecycle | `Illuminate\Mail\Events\MessageSent` / `MessageSending` |
