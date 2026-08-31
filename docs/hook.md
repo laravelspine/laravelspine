@@ -1,7 +1,6 @@
 # Hooks & Events
 
-Spine uses **Laravel Events** as its extension points (the equivalent of hooks in
-legacy CRMs). Every event lives in `Spine\Events\` and is dispatched from a
+Spine uses **Laravel Events** as its extension points. Every event lives in `Spine\Events\` and is dispatched from a
 service or controller at the moment the action completes. Modules and consumers
 react by registering **listeners** — no core modification required.
 
@@ -77,7 +76,3 @@ Hooks from the legacy CRM map to Laravel primitives as follows:
 | Bootstrap hooks (`application/hooks/`) | `ServiceProvider::boot()` + middleware |
 | Auth hooks (`after_staff_login`, ...) | `Illuminate\Auth\Events\Login` / `Logout` / `PasswordReset` |
 | Mail hooks (`email_template_sent`, ...) | `Illuminate\Mail\Events\MessageSent` / `MessageSending` |
-
-The full legacy inventory lives in the
-[wasnaker-porting-docs](https://github.com/wasnaker/wasnaker-porting-docs)
-repository (`daftar-hook-before-after.md`).
