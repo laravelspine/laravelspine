@@ -156,6 +156,17 @@ echo 'success=' . var_export(\$r['success'], true) . '|events=' . implode(',',\$
 echo "run: $R"
 echo "$R" | grep -q "^success=true|events=testing,tested:ok" || { echo "FAIL: smtp test"; FAIL=1; }
 
+echo "== auth-model: MailService::notify resolve user via config (bukan Spine\\\\Services\\\\User) =="
+R=$("$PHP" artisan tinker --execute="
+use Spine\Services\MailService;
+config(['mail.default' => 'log']);
+\$ok = app(MailService::class)->notify(['user_id'=>1,'subject'=>'T','body'=>'B']);
+\$n = app(MailService::class)->notifyMany(['user_ids'=>[1],'subject'=>'T','body'=>'B']);
+echo 'notify=' . var_export(\$ok, true) . '|many=' . var_export(\$n, true);
+" 2>&1 | grep -E "^notify=" | tail -1)
+echo "run: $R"
+echo "$R" | grep -q "^notify=true|many=1" || { echo "FAIL: auth-model"; FAIL=1; }
+
 echo "== cleanup: storage test =="
 "$PHP" artisan tinker --execute="
 \Illuminate\Support\Facades\Storage::disk('local')->deleteDirectory('tenants/global/verify');

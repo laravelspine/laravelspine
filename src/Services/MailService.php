@@ -116,7 +116,8 @@ class MailService
             return false;
         }
 
-        $user = User::find($userId);
+        $userClass = (string) config('auth.providers.users.model');
+        $user = $userClass::find($userId);
         if (! $user) {
             return false;
         }
@@ -142,7 +143,8 @@ class MailService
             return 0;
         }
 
-        $users = User::whereIn('id', $userIds)->get();
+        $userClass = (string) config('auth.providers.users.model');
+        $users = $userClass::whereIn('id', $userIds)->get();
 
         if ($users->isEmpty()) {
             return 0;
