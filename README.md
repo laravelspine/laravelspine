@@ -15,7 +15,8 @@ Core principles:
   Projects, …) live outside the core and are mounted via
   [nwidart/laravel-modules](https://github.com/nwidart/laravel-modules).
 - **Modules communicate through events and interfaces**, never direct
-  dependencies.
+  dependencies. The extension points are documented in
+  [docs/hook.md](docs/hook.md).
 - **API-first and versioned.** Every endpoint lives under `/api/v1`;
   breaking changes move to `v2` without breaking existing clients.
 
