@@ -29,6 +29,10 @@ class MailService
      */
     public function send(array $payload): bool
     {
+        $sending = new \Spine\Events\MailSending($payload);
+        event($sending);
+        $payload = $sending->payload;
+
         $to = $payload['to'] ?? null;
         $subject = $payload['subject'] ?? '(no subject)';
         $view = $payload['view'] ?? null;

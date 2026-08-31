@@ -25,18 +25,18 @@ class GenericMail extends Mailable
      * @param  array<string, mixed>  $data
      */
     public function __construct(
-        public string $subject,
-        public string $view,
+        public string $subjectText,
+        public string $viewName,
         public array $data = []
     ) {}
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: $this->subject);
+        return new Envelope(subject: $this->subjectText);
     }
 
     public function content(): Content
     {
-        return new Content(view: $this->view, with: $this->data);
+        return new Content(view: $this->viewName, with: $this->data);
     }
 }

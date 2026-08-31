@@ -87,6 +87,26 @@ echo \$first . '|' . \$veto;
 echo "run: $R"
 echo "$R" | grep -q "^creating|created|VETOED" || { echo "FAIL: pdf"; FAIL=1; }
 
+echo "== hook: MailSending (email_template_parsed) =="
+R=$("$PHP" artisan tinker --execute="
+use Spine\Events\MailSending; use Spine\Services\MailService;
+use Illuminate\Validation\ValidationException;
+config(['mail.default' => 'log']);
+\$log=[];
+Event::listen(MailSending::class, function(\$e) use (&\$log) {
+    \$log[]='mutated';
+    \$e->payload['subject']='Diubah';
+});
+\$ok = app(MailService::class)->send(['to'=>'t@t.id','subject'=>'Asli','view'=>'welcome','data'=>[]]);
+echo 'mutasi=' . (in_array('mutated',\$log) ? 'OK' : 'FAIL') . '|send=' . var_export(\$ok, true);
+Event::listen(MailSending::class, fn(\$e) => throw ValidationException::withMessages(['mail'=>'blocked']));
+try { app(MailService::class)->send(['to'=>'t@t.id','subject'=>'x','view'=>'welcome']); \$veto='NO-VETO'; }
+catch (ValidationException \$ex) { \$veto='VETOED'; }
+echo '|veto=' . \$veto;
+" 2>&1 | grep -E "^mutasi=" | tail -1)
+echo "run: $R"
+echo "$R" | grep -q "^mutasi=OK|send=true|veto=VETOED" || { echo "FAIL: mail"; FAIL=1; }
+
 echo "== cleanup: storage test =="
 "$PHP" artisan tinker --execute="
 \Illuminate\Support\Facades\Storage::disk('local')->deleteDirectory('tenants/global/verify');
