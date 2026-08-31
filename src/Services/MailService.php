@@ -59,6 +59,48 @@ class MailService
     }
 
     /**
+     * Send an SMTP test email.
+     *
+     * Dispatches MailTesting (mutable payload, veto point) before sending and
+     * MailTested (success/error) after. Returns the outcome.
+     *
+     * @param  array{to: string, subject?: string, body?: string}  $payload
+     * @return array{success: bool, error?: string}
+     */
+    public function testSmtp(array $payload): array
+    {
+        $testing = new \Spine\Events\MailTesting($payload);
+        event($testing);
+        $payload = $testing->payload;
+
+        $to = $payload['to'] ?? null;
+        $subject = $payload['subject'] ?? 'SMTP Setup Testing';
+        $body = $payload['body'] ?? 'This is a test email to verify your SMTP settings.';
+
+        if (! $to) {
+            \Spine\Events\MailTested::dispatch(false, 'No recipient provided');
+
+            return ['success' => false, 'error' => 'No recipient provided'];
+        }
+
+        try {
+            Mail::raw($body, function ($message) use ($to, $subject) {
+                $message->to($to)->subject($subject);
+            });
+
+            \Spine\Events\MailTested::dispatch(true);
+
+            return ['success' => true];
+        } catch (\Throwable $e) {
+            $error = $e->getMessage();
+
+            \Spine\Events\MailTested::dispatch(false, $error);
+
+            return ['success' => false, 'error' => $error];
+        }
+    }
+
+    /**
      * Send a notification to a specific user.
      *
      * @param  array{user_id: int, subject: string, body: string, action_url?: string|null}  $payload

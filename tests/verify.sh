@@ -140,6 +140,22 @@ echo 'name=' . \$res['name'] . '|events=' . implode(',',\$log);
 echo "run: $R"
 echo "$R" | grep -q "^name=Diubah|events=mutated" || { echo "FAIL: relation"; FAIL=1; }
 
+echo "== hook: MailTesting/MailTested (SMTP test) =="
+R=$("$PHP" artisan tinker --execute="
+use Spine\Events\MailTesting; use Spine\Events\MailTested; use Spine\Services\MailService;
+config(['mail.default' => 'log']);
+\$log=[];
+Event::listen(MailTesting::class, function(\$e) use (&\$log) {
+    \$log[]='testing';
+    \$e->payload['subject']='Diubah';
+});
+Event::listen(MailTested::class, function(\$e) use (&\$log) { \$log[]='tested:' . (\$e->success ? 'ok' : 'fail'); });
+\$r = app(MailService::class)->testSmtp(['to'=>'t@t.id','subject'=>'Asli','body'=>'Halo']);
+echo 'success=' . var_export(\$r['success'], true) . '|events=' . implode(',',\$log);
+" 2>&1 | grep -E "^success=" | tail -1)
+echo "run: $R"
+echo "$R" | grep -q "^success=true|events=testing,tested:ok" || { echo "FAIL: smtp test"; FAIL=1; }
+
 echo "== cleanup: storage test =="
 "$PHP" artisan tinker --execute="
 \Illuminate\Support\Facades\Storage::disk('local')->deleteDirectory('tenants/global/verify');

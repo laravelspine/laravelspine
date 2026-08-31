@@ -72,6 +72,7 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 
     // Mail
     Route::post('/mail/send', [MailController::class, 'send']);
+    Route::post('/mail/test', [MailController::class, 'test']);
     Route::post('/mail/notify', [MailController::class, 'notify']);
     Route::post('/mail/notify-many', [MailController::class, 'notifyMany']);
     Route::post('/mail/retry', [MailController::class, 'retryQueue']);

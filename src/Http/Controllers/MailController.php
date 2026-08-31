@@ -59,6 +59,39 @@ class MailController extends Controller
     }
 
     /**
+     * Send an SMTP test email.
+     *
+     * @authenticated
+     *
+     * @bodyParam to string required Recipient email address. Example: user@example.com
+     * @bodyParam subject string optional Email subject. Example: SMTP Setup Testing
+     * @bodyParam body string optional Email body.
+     *
+     * @response scenario=success {"message":"SMTP test email sent","success":true}
+     * @response scenario=failure {"message":"SMTP test failed","success":false,"error":"..."}
+     */
+    public function test(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'to' => 'required|email',
+            'subject' => 'sometimes|string|max:255',
+            'body' => 'sometimes|string',
+        ]);
+
+        $result = $this->mail->testSmtp([
+            'to' => $validated['to'],
+            'subject' => $validated['subject'] ?? null,
+            'body' => $validated['body'] ?? null,
+        ]);
+
+        return response()->json([
+            'message' => $result['success'] ? 'SMTP test email sent' : 'SMTP test failed',
+            'success' => $result['success'],
+            'error' => $result['error'] ?? null,
+        ], $result['success'] ? 200 : 500);
+    }
+
+    /**
      * Send an email notification to a user.
      *
      * @authenticated
