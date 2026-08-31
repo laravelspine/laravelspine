@@ -36,13 +36,21 @@ class PdfService
      */
     public function fromHtml(array $payload): string
     {
+        $event = new \Spine\Events\PdfCreating($payload);
+        event($event);
+        $payload = $event->payload;
+
         $pdf = DomPdf::loadHtml($payload['html'])
             ->setPaper(
                 $payload['paper'] ?? config('pdf.defaults.paper', 'a4'),
                 $payload['orientation'] ?? config('pdf.defaults.orientation', 'portrait')
             );
 
-        return $pdf->output();
+        $binary = $pdf->output();
+
+        \Spine\Events\PdfCreated::dispatch($binary, $payload);
+
+        return $binary;
     }
 
     /**
@@ -52,6 +60,10 @@ class PdfService
      */
     public function fromView(array $payload): string
     {
+        $event = new \Spine\Events\PdfCreating($payload);
+        event($event);
+        $payload = $event->payload;
+
         $pdf = DomPdf::loadView(
             $payload['view'],
             $payload['data'] ?? []
@@ -60,7 +72,11 @@ class PdfService
             $payload['orientation'] ?? config('pdf.defaults.orientation', 'portrait')
         );
 
-        return $pdf->output();
+        $binary = $pdf->output();
+
+        \Spine\Events\PdfCreated::dispatch($binary, $payload);
+
+        return $binary;
     }
 
     /**

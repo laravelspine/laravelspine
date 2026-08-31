@@ -20,6 +20,8 @@ is added** (see [Adding a new hook](#adding-a-new-hook)).
 | `Spine\Events\NotificationSent` | A realtime notification is broadcast to a user (Reverb) | `BroadcastController` | `int $userId`, `string $title`, `string $message`, `string $type`, `array $data` |
 | `Spine\Events\FileUploading` | Before a file is stored; listeners may **reject** the upload by throwing | `FileService::storeUpload()` | `UploadedFile $file`, `string $relType`, `int $relId`, `?int $tenantId`, `string $disk` |
 | `Spine\Events\FileUploaded` | After a file is stored | `FileService::storeUpload()` | `string $path`, `string $relType`, `int $relId`, `?int $tenantId`, `string $disk` |
+| `Spine\Events\PdfCreating` | Before a PDF is rendered; `$payload` is **mutable** (PDF data filters) — throw to abort | `PdfService::fromHtml()` / `fromView()` | `array $payload` (mutable: html/view/data/paper/orientation) |
+| `Spine\Events\PdfCreated` | After a PDF is rendered | `PdfService::fromHtml()` / `fromView()` | `string $binary`, `array $payload` |
 
 > Note: `FileUploading` is a veto point — throw `ValidationException` inside a
 > listener to abort the upload before it reaches storage.
