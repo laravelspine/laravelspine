@@ -43,12 +43,24 @@ class BroadcastController extends Controller
         ]);
 
         $user = $request->user();
+        $payload = [
+            'userId' => (int) $user->id,
+            'title' => $validated['title'] ?? 'Notifikasi baru',
+            'message' => $validated['message'] ?? 'Ini adalah notifikasi uji realtime.',
+            'type' => $validated['type'] ?? 'info',
+            'data' => $validated['data'] ?? [],
+        ];
+
+        $creating = new \Spine\Events\NotificationCreating($payload);
+        event($creating);
+        $payload = $creating->payload;
+
         $event = new NotificationSent(
-            userId: (int) $user->id,
-            title: $validated['title'] ?? 'Notifikasi baru',
-            message: $validated['message'] ?? 'Ini adalah notifikasi uji realtime.',
-            type: $validated['type'] ?? 'info',
-            data: $validated['data'] ?? [],
+            userId: $payload['userId'],
+            title: $payload['title'],
+            message: $payload['message'],
+            type: $payload['type'],
+            data: $payload['data'],
         );
 
         broadcast($event);
