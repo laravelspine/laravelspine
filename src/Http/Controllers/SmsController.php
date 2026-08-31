@@ -10,14 +10,13 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
- * API pengiriman SMS.
+ * SMS sending API.
  *
- * Diadopsi dari `sms/` legacy CRM (Twilio, Clickatell, Msg91) sebagai abstraksi
- * provider pluggable + channel notifikasi.
+ * Pluggable provider abstraction + notification channel.
  *
  * Endpoint:
- *   POST /api/sms/send       -> kirim SMS via driver aktif/terpilih
- *   GET  /api/sms/drivers    -> daftar driver yang terkonfigurasi
+ *   POST /api/sms/send       -> send an SMS via the active/selected driver
+ *   GET  /api/sms/drivers    -> list configured drivers
  *
  * @group api/v1
      * @subgroup Sms
@@ -31,13 +30,13 @@ class SmsController extends Controller
     ) {}
 
     /**
-     * Kirim SMS.
+     * Send an SMS.
      *
      * @authenticated
      *
-     * @bodyParam to string required Nomor tujuan (format internasional). Example: +6281234567890
-     * @bodyParam body string required Isi pesan. Example: Kode OTP Anda: 123456
-     * @bodyParam driver string optional Nama driver (twilio, log). Example: log
+     * @bodyParam to string required Destination number (international format). Example: +6281234567890
+     * @bodyParam body string required Message body. Example: Kode OTP Anda: 123456
+     * @bodyParam driver string optional Driver name (twilio, log). Example: log
      *
      * @response {
      *   "data": { "success": true, "message": "SMS terkirim" }
@@ -57,7 +56,7 @@ class SmsController extends Controller
     }
 
     /**
-     * Daftar driver SMS yang terkonfigurasi.
+     * List of configured SMS drivers.
      *
      * @authenticated
      *

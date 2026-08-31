@@ -8,12 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\File;
 
 /**
- * API utilitas sistem (info aplikasi, bahasa tersedia).
- *
- * Diadopsi dari sisa `App.php` legacy CRM (`get_available_languages`).
- * `get_available_reminders_keys` sengaja TIDAK di-port ke core — reminder
- * adalah domain per-modul (mis. Sales: invoice_due_reminder), bukan
- * cross-cutting.
+ * System utility API (app info, available languages).
  *
  * @group api/v1
  *     * @subgroup System
@@ -21,10 +16,11 @@ use Illuminate\Support\Facades\File;
 class SystemController extends Controller
 {
     /**
-     * Daftar bahasa (locale) yang tersedia di aplikasi.
+     * List the languages (locales) available in the application.
      *
-     * Memindai direktori `lang/` (konvensi Laravel 12) + selalu menyertakan
-     * `app.locale` default. Belum ada folder lang → hanya locale default.
+     * Scans the `lang/` directory (Laravel 12 convention) and always includes
+     * the default `app.locale`. If no lang folder exists, only the default
+     * locale is returned.
      *
      * @authenticated
      *

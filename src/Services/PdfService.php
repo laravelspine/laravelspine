@@ -10,13 +10,12 @@ use Illuminate\Support\Facades\Storage;
 use ZipArchive;
 
 /**
- * PdfService — generator dokumen PDF.
+ * PdfService — PDF document generator.
  *
- * Diadopsi dari `App_bulk_pdf_export.php` dan `pdf/` legacy CRM.
- * Menyediakan:
+ * Provides:
  *  - Render HTML/Blade → PDF (single)
- *  - Simpan PDF ke storage (per-tenant)
- *  - Bulk export banyak dokumen → satu file ZIP (job/queue untuk proses berat)
+ *  - Store PDFs to storage (per-tenant)
+ *  - Bulk export many documents → a single ZIP file (job/queue for heavy work)
  *
  */
 class PdfService
@@ -31,7 +30,7 @@ class PdfService
     }
 
     /**
-     * Render string HTML menjadi binary PDF.
+     * Render an HTML string into a binary PDF.
      *
      * @param  array{html: string, paper?: string, orientation?: string}  $payload
      */
@@ -47,7 +46,7 @@ class PdfService
     }
 
     /**
-     * Render Blade view menjadi binary PDF.
+     * Render a Blade view into a binary PDF.
      *
      * @param  array{view: string, data?: array<string, mixed>, paper?: string, orientation?: string}  $payload
      */
@@ -65,10 +64,10 @@ class PdfService
     }
 
     /**
-     * Simpan binary PDF ke storage, return path relatif.
+     * Store a binary PDF to storage and return the relative path.
      *
-     * @param  string  $filename  nama file (tanpa ekstensi, mis. 'INV-0001')
-     * @param  string  $relType  mis. 'invoice'
+     * @param  string  $filename  file name (without extension, e.g. 'INV-0001')
+     * @param  string  $relType  e.g. 'invoice'
      */
     public function store(string $binary, string $filename, string $relType, int $relId, ?int $tenantId = null): string
     {
@@ -81,7 +80,7 @@ class PdfService
     }
 
     /**
-     * Buat satu PDF dari view lalu simpan; return path.
+     * Build a PDF from a view, store it, and return the path.
      *
      * @param  array<string, mixed>  $payload
      */
@@ -105,7 +104,7 @@ class PdfService
     }
 
     /**
-     * Bulk export: generate banyak PDF (dari callback resolver) lalu zip.
+     * Bulk export: generate many PDFs (from the callback resolver) and zip them.
      *
      * @param  array{documents: list<array{filename: string, html: string}>, prefix?: string}  $payload
      * @return array{path: string, url: string, count: int}
@@ -140,7 +139,7 @@ class PdfService
             $zip->close();
         }
 
-        // cleanup file PDF individual
+        // Clean up the individual PDF files
         $this->deleteDir($tmpDir);
 
         $disk = $this->disk();
@@ -155,7 +154,7 @@ class PdfService
     }
 
     /**
-     * Hapus direktori rekursif.
+     * Delete a directory recursively.
      */
     private function deleteDir(string $dir): void
     {

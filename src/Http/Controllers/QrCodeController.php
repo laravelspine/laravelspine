@@ -10,13 +10,12 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
- * API generator QR Code.
+ * QR Code generator API.
  *
- * Diadopsi dari `Endroid_qrcode.py` legacy CRM.
- * Dipakai untuk 2FA, signature/scan kode, dll.
+ * Used for 2FA, signature/scan codes, etc.
  *
  * Endpoint:
- *   POST /api/qr-code/generate   -> generate QR, return base64 PNG / data URI / stored path
+ *   POST /api/qr-code/generate   -> generate a QR, return base64 PNG / data URI / stored path
  *
  * @group api/v1
      * @subgroup QrCode

@@ -5,20 +5,18 @@ declare(strict_types=1);
 namespace Spine\Support\Helpers;
 
 /**
- * Helper formatter angka & mata uang yang diadopsi dari sales_helper.php
- * legacy CRM (bagian formatter saja).
+ * Number and currency formatting helper.
  *
- * Fungsi business logic (perhitungan pajak, update kolom total, dst.) tidak
- * termasuk di sini — akan dipindahkan ke module Service (mis.
- * modules/Sales/Services/InvoiceService.php) nanti.
- *
+ * Business logic functions (tax calculation, total column updates, etc.) are
+ * intentionally not included here — they will move to module services (e.g.
+ * modules/Sales/Services/InvoiceService.php) later.
  */
 class Number
 {
     /**
-     * Format angka dengan ribuan & decimal.
+     * Format a number with thousands separators and decimals.
      *
-     * Contoh: Number::formatNumber(1500000, 2) → '1,500,000.00'
+     * Example: Number::formatNumber(1500000, 2) → '1,500,000.00'
      *         Number::formatNumber(null) → ''
      */
     public static function formatNumber(null|float|int|string $number, ?int $decimals = null): string
@@ -37,10 +35,10 @@ class Number
     }
 
     /**
-     * Format nilai uang kerepresentasi string mata uang.
+     * Format a monetary value as a currency string.
      *
-     * Contoh: Number::formatMoney(1500000, 'IDR') → 'Rp 1.500.000,00'
-     *         Number::formatMoney(0, 'IDR', true) → ''   (blank jika nol)
+     * Example: Number::formatMoney(1500000, 'IDR') → 'Rp 1.500.000,00'
+     *         Number::formatMoney(0, 'IDR', true) → ''   (blank if zero)
      */
     public static function formatMoney(null|float|int|string $amount, string $currencyCode = 'IDR', bool $blankZero = false): string
     {
@@ -61,10 +59,10 @@ class Number
     }
 
     /**
-     * Dapatkan jumlah decimal places untuk kode mata uang tertentu.
+     * Get the number of decimal places for a given currency code.
      *
-     * Aturan dasar (bisa diganti dengan model Currency nanti):
-     *   JPY, KRW → 0 (tidak ada decimal)
+     * Basic rules (can be replaced by a Currency model later):
+     *   JPY, KRW → 0 (no decimals)
      *   default → 2
      */
     public static function getDecimalPlaces(string $currencyCode): int
@@ -76,9 +74,9 @@ class Number
     }
 
     /**
-     * Dapatkan simbol mata uang berdasarkan kode ISO.
+     * Get the currency symbol for an ISO code.
      *
-     * Aturan dasar (bisa diganti dengan model Currency nanti):
+     * Basic rules (can be replaced by a Currency model later):
      *   IDR → Rp, USD → $, EUR → €, GBP → £, JPY → ¥, KRW → ₩
      */
     public static function getCurrencySymbol(string $currencyCode): string
@@ -95,11 +93,11 @@ class Number
     }
 
     /**
-     * Apakah sistem menggunakan multiple currencies yang aktif.
+     * Whether the system uses multiple active currencies.
      *
-     * Saat ini placeholder: selalu false.
-     * Nanti diimplementasi dengan mengecek Currency model / SettingService
-     * untuk currency yang aktif.
+     * Currently a placeholder: always returns false.
+     * Will be implemented later by checking the Currency model / SettingService
+     * for active currencies.
      */
     public static function isUsingMultipleCurrencies(): bool
     {
@@ -107,9 +105,9 @@ class Number
     }
 
     /**
-     * Format persen ke string.
+     * Format a percentage as a string.
      *
-     * Contoh: Number::formatPercent(15.5, 1) → '15.5%'
+     * Example: Number::formatPercent(15.5, 1) → '15.5%'
      */
     public static function formatPercent(null|float|int|string $value, ?int $decimals = null): string
     {
@@ -127,10 +125,10 @@ class Number
     }
 
     /**
-     * Parse format mata uang ke nilai numeric.
+     * Parse a currency-formatted string into a numeric value.
      *
-     * Mengembalikan null jika tidak bisa dipars.
-     * Contoh: Number::parseMoney('Rp 1.500.000,00') → 1500000.00
+     * Returns null if the value cannot be parsed.
+     * Example: Number::parseMoney('Rp 1.500.000,00') → 1500000.00
      */
     public static function parseMoney(null|string $text): ?float
     {
@@ -138,7 +136,7 @@ class Number
             return null;
         }
 
-        // Hilangkan simbol mata uang umum dan separator ribuan
+        // Strip common currency symbols and thousands separators
         $cleaned = preg_replace('/[Rp$€£¥₩\s]/u', '', $text);
         $cleaned = str_replace('.', '', $cleaned);
         $cleaned = str_replace(',', '.', $cleaned);

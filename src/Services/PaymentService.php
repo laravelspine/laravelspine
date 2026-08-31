@@ -9,12 +9,10 @@ use Spine\Services\PaymentGateway\StripePaymentGateway;
 use Illuminate\Support\Facades\Config;
 
 /**
- * PaymentService — registry + factory untuk payment gateway.
+ * PaymentService — registry + factory for payment gateways.
  *
- * Memilih gateway aktif berdasarkan config, lalu delegasikan ke implementasi
- * PaymentGatewayInterface.
- *
- * Diadopsi dari pola abstraksi gateway di `gateways/` legacy CRM.
+ * Selects the active gateway based on config, then delegates to the
+ * PaymentGatewayInterface implementation.
  */
 class PaymentService
 {
@@ -29,7 +27,7 @@ class PaymentService
     }
 
     /**
-     * Register semua gateway yang tersedia.
+     * Register all available gateways.
      */
     private function registerGateways(): void
     {
@@ -40,7 +38,7 @@ class PaymentService
     }
 
     /**
-     * Dapatkan gateway berdasarkan nama.
+     * Get a gateway by name.
      */
     public function gateway(string $name): ?PaymentGatewayInterface
     {
@@ -48,7 +46,7 @@ class PaymentService
     }
 
     /**
-     * Dapatkan daftar gateway yang terkonfigurasi.
+     * Get the list of configured gateways.
      */
     public function availableGateways(): array
     {
@@ -56,7 +54,7 @@ class PaymentService
     }
 
     /**
-     * Create payment intent via gateway aktif.
+     * Create a payment intent via the active gateway.
      *
      * @param  array<string, mixed>  $payload
      */
@@ -72,7 +70,7 @@ class PaymentService
     }
 
     /**
-     * Handle webhook via gateway aktif.
+     * Handle a webhook via the active gateway.
      *
      * @param  array<string, mixed>  $payload
      */

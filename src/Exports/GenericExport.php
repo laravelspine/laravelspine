@@ -10,10 +10,9 @@ use Maatwebsite\Excel\Concerns\WithCustomCsvSettings;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 
 /**
- * GenericExport — export data array menjadi file Excel/CSV.
+ * GenericExport — export a data array to an Excel/CSV file.
  *
- * Diadopsi dari `import/` legacy CRM (Import_customers, Import_items, Import_leads).
- * Kolom diambil dari key array pertama / headings yang diberikan.
+ * Columns are taken from the keys of the first array row or from the given headings.
  *
  * @implements FromArray
  */

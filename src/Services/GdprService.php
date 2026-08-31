@@ -11,18 +11,17 @@ use Illuminate\Support\Str;
 /**
  * GdprService — data privacy / compliance service.
  *
- * Diadopsi dari `gdpr/` legacy CRM.
- * Menyediakan:
+ * Provides:
  * - Data export per data subject (JSON)
  * - Data erasure: anonymize/delete (GDPR right to be forgotten)
  *
- * Mapping ke tabel aktual:
+ * Mapping to actual tables:
  * - meta -> custom_meta (meta_type, meta_id)
  * - files -> attachments (rel_type, rel_id)
  * - settings -> global/tenant, not user-owned
  *
- * Data subject = model auth default app (`config('auth.providers.users.model')`)
- * — bukan class Spine\Models\User yang dikunci.
+ * The data subject is the app's default auth model (`config('auth.providers.users.model')`)
+ * — not a locked Spine\Models\User class.
  */
 class GdprService
 {
@@ -37,7 +36,7 @@ class GdprService
     /**
      * Export all data associated with a user.
      *
-     * @param object $user model auth app
+     * @param object $user The app's auth model
      * @return array<string, mixed>
      */
     public function export(object $user): array

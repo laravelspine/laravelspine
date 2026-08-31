@@ -5,21 +5,21 @@ declare(strict_types=1);
 namespace Spine\Support\Helpers;
 
 /**
- * Helper string yang diadopsi dari func_helper.php legacy CRM.
+ * String helpers.
  *
- * Fungsi yang sudah ada di Laravel (Str::startsWith, Arr::flatten, dst.)
- * tidak diulang di sini; gunakan Laravel native langsung.
+ * Functions already provided by Laravel (Str::startsWith, Arr::flatten, etc.)
+ * are not duplicated here; use the native Laravel ones directly.
  *
- * Fungsi di bawah ini tidak tersedia di Laravel native dan tetap dibutuhkan
- * oleh business logic hasil porting.
+ * The functions below are not available in native Laravel and are still
+ * needed by business logic.
  *
  */
 class Str
 {
     /**
-     * Apakah string dimulai dengan substring tertentu.
+     * Whether the string starts with the given substring.
      *
-     * @deprecated Gunakan Illuminate\Support\Str::startsWith() langsung.
+     * @deprecated Use Illuminate\Support\Str::startsWith() directly.
      */
     public static function startsWith(string $haystack, string $needle): bool
     {
@@ -27,9 +27,9 @@ class Str
     }
 
     /**
-     * Apakah string diakhiri dengan substring tertentu.
+     * Whether the string ends with the given substring.
      *
-     * @deprecated Gunakan Illuminate\Support\Str::endsWith() langsung.
+     * @deprecated Use Illuminate\Support\Str::endsWith() directly.
      */
     public static function endsWith(string $haystack, string $needle): bool
     {
@@ -37,10 +37,10 @@ class Str
     }
 
     /**
-     * Return substring setelah posisi pertama `needle`.
+     * Return the substring after the first occurrence of `needle`.
      *
-     * Contoh: Str::strafter('foo-bar-baz', 'foo-') → 'bar-baz'
-     * Kalau needle tidak ditemukan, return string kosong.
+     * Example: Str::strafter('foo-bar-baz', 'foo-') → 'bar-baz'
+     * If the needle is not found, returns an empty string.
      */
     public static function strafter(string $haystack, string $needle): string
     {
@@ -54,10 +54,10 @@ class Str
     }
 
     /**
-     * Return substring sebelum posisi pertama `needle`.
+     * Return the substring before the first occurrence of `needle`.
      *
-     * Contoh: Str::strbefore('foo-bar-baz', '-bar') → 'foo'
-     * Kalau needle tidak ditemukan, return string asal utuh.
+     * Example: Str::strbefore('foo-bar-baz', '-bar') → 'foo'
+     * If the needle is not found, returns the original string.
      */
     public static function strbefore(string $haystack, string $needle): string
     {
@@ -71,10 +71,10 @@ class Str
     }
 
     /**
-     * Ambil substring di antara dua delimiter.
+     * Get the substring between two delimiters.
      *
-     * Contoh: Str::get_string_between('foo[bar]baz', '[', ']') → 'bar'
-     * Kalau delimiter tidak ditemukan, return null.
+     * Example: Str::get_string_between('foo[bar]baz', '[', ']') → 'bar'
+     * If a delimiter is not found, returns null.
      */
     public static function get_string_between(string $input, string $start, string $end): ?string
     {
@@ -95,36 +95,34 @@ class Str
     }
 
     /**
-     * Slugify string → lowercase, ganti spasi/underscore dengan dash,
-     * hilangkan karakter non-alphanumeric (selain dash), ratakan dash ganda.
+     * Slugify a string → lowercase, spaces/underscores to dashes,
+     * strip non-alphanumeric characters (besides dashes), collapse double dashes.
      *
-     * Di legacy dikenal sebagai `sluq_it`.
-     *
-     * Contoh: Str::sluq_it('Hello  World!') → 'hello-world'
+     * Example: Str::sluq_it('Hello  World!') → 'hello-world'
      */
     public static function sluq_it(string $str): string
     {
-        // Lowercase dan trim
+        // Lowercase and trim
         $str = strtolower(trim($str));
 
-        // Hilangkan karakter non-alphanumeric, kecuali spasi dan dash
+        // Strip non-alphanumeric characters, except spaces and dashes
         $str = preg_replace('/[^\w\s-]/u', '', $str);
 
-        // Ganti spasi dan underscore dengan dash
+        // Replace spaces and underscores with dashes
         $str = preg_replace('/[\s_]+/u', '-', $str);
 
-        // Ratakan dash berulang dan trim dash di ujung
+        // Collapse repeated dashes and trim dashes at the ends
         $str = preg_replace('/-+/u', '-', $str);
 
         return trim($str, '-');
     }
 
     /**
-     * Apakah nilai ada di array multidimensi (rekursif,ゆるい比较).
+     * Whether a value exists in a multidimensional array (recursive, loose comparison).
      *
-     * @param mixed $needle Nilai yang dicari
-     * @param array $haystack Array (bisa nested) untuk dicari
-     * @param bool $strict Gunakan === (true) atau == (false)
+     * @param mixed $needle The value to search for
+     * @param array $haystack The array (possibly nested) to search in
+     * @param bool $strict Use === (true) or == (false)
      */
     public static function in_array_multidimensional(mixed $needle, array $haystack, bool $strict = false): bool
     {
@@ -142,10 +140,10 @@ class Str
     }
 
     /**
-     * Flatten array multidimensi ke satu dimensi (rekursif, shallow-first).
+     * Flatten a multidimensional array into one dimension (recursive, shallow-first).
      *
-     * Perbedaan dengan Arr::flatten: fungsi ini mempertahankan key string
-     * yang bukan numeric (di-level yang di-flatten).
+     * Unlike Arr::flatten, this keeps non-numeric string keys
+     * (at the flattened level).
      */
     public static function array_flatten(array $array): array
     {
@@ -163,8 +161,8 @@ class Str
     }
 
     /**
-     * Konversi array (asosiatif) ke stdClass object.
-     * Array kosong menghasilkan null.
+     * Convert an (associative) array to a stdClass object.
+     * An empty array yields null.
      */
     public static function array_to_object(array $array): ?object
     {
@@ -176,9 +174,9 @@ class Str
     }
 
     /**
-     * Similarity dua string dalam persen (0–100).
+     * Similarity of two strings in percent (0–100).
      *
-     * Wrapper atas similar_text() PHP.
+     * Wrapper around PHP's similar_text().
      */
     public static function similarity(string $str1, string $str2): float
     {

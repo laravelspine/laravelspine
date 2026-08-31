@@ -8,17 +8,12 @@ use Spine\Models\CustomMeta;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 /**
- * Trait metadata key-value per entity.
- *
- * Diadopsi dari user_meta_helper.php legacy CRM:
- *   - get_staff_meta, update_staff_meta, add_staff_meta
- *   - get_customer_meta, add_customer_meta
- *
+ * Key-value metadata trait per entity.
  */
 trait HasMetaData
 {
     /**
-     * Ambil seluruh metadata entity sebagai array.
+     * Get all entity metadata as an array.
      *
      * @return array<string, mixed>
      */
@@ -30,7 +25,7 @@ trait HasMetaData
     }
 
     /**
-     * Ambil satu nilai meta oleh key.
+     * Get a single meta value by key.
      *
      * @param string $key
      * @param mixed $default
@@ -47,7 +42,7 @@ trait HasMetaData
     }
 
     /**
-     * Simpan / update satu nilai meta.
+     * Set or update a single meta value.
      *
      * @param string $key
      * @param mixed $value
@@ -69,7 +64,7 @@ trait HasMetaData
     }
 
     /**
-     * Hapus satu meta oleh key.
+     * Delete a single meta value by key.
      *
      * @param string $key
      */
@@ -79,13 +74,13 @@ trait HasMetaData
     }
 
     /**
-     * Simpan banyak meta sekaligus (replace).
+     * Store many meta values at once (replace).
      *
      * @param array<string, mixed> $data
      */
     public function setMetaArray(array $data): void
     {
-        // Hapus meta lama yang tidak ada di data baru
+        // Remove old meta keys not present in the new data
         $currentKeys = $this->meta()->pluck('meta_key')->toArray();
         $newKeys = array_keys($data);
 
@@ -93,14 +88,14 @@ trait HasMetaData
             $this->deleteMeta($oldKey);
         }
 
-        // Upsert meta baru
+        // Upsert new meta
         foreach ($data as $key => $value) {
             $this->setMeta($key, $value);
         }
     }
 
     /**
-     * Relasi ke custom meta.
+     * Relation to custom meta.
      */
     public function meta(): MorphMany
     {

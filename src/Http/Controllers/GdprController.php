@@ -9,10 +9,10 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
- * API untuk GDPR / data privacy.
+ * GDPR / data privacy API.
  *
- * Diadopsi dari `gdpr/` legacy CRM.
- * Data subject = model auth app (`config('auth.providers.users.model')`).
+ * The data subject is the app's auth model
+ * (`config('auth.providers.users.model')`).
  *
  * @group api/v1
  *     * @subgroup GDPR

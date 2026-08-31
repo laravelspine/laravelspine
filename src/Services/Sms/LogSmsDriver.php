@@ -7,9 +7,9 @@ namespace Spine\Services\Sms;
 use Illuminate\Support\Facades\Log;
 
 /**
- * LogSmsDriver — dummy driver yang menulis ke log.
+ * LogSmsDriver — dummy driver that writes to the log.
  *
- * Berguna untuk development/testing tanpa biaya SMS sungguhan.
+ * Useful for development/testing without incurring real SMS costs.
  */
 class LogSmsDriver implements SmsDriver
 {
@@ -23,7 +23,7 @@ class LogSmsDriver implements SmsDriver
 
         return [
             'success' => true,
-            'message' => 'SMS dikirim via log driver (no-op)',
+            'message' => 'SMS sent via log driver (no-op)',
         ];
     }
 

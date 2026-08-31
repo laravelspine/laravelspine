@@ -7,9 +7,9 @@ namespace Spine\Services\Sms;
 use Illuminate\Support\Facades\Http;
 
 /**
- * TwilioSmsDriver — kirim SMS via Twilio REST API.
+ * TwilioSmsDriver — send SMS via the Twilio REST API.
  *
- * Tidak bergantung SDK eksternal; memakai Laravel HTTP client.
+ * No external SDK required; uses the Laravel HTTP client.
  */
 class TwilioSmsDriver implements SmsDriver
 {

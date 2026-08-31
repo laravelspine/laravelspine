@@ -12,10 +12,10 @@ use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
 /**
- * API log aktivitas (dari database_helper.php legacy CRM: log_activity).
+ * Activity log API.
  *
- * Ini adalah resource REST (setiap log punya ID auto-increment),
- * berbeda dengan Settings yang key-value. Mendukung scope multi-tenant.
+ * This is a REST resource (each log has an auto-increment ID), unlike
+ * Settings which are key-value. Supports multi-tenant scope.
  *
  * @group api/v1
      * @subgroup Activity Logs
@@ -27,32 +27,31 @@ class ActivityLogController extends Controller
     ) {}
 
     /**
-     * List log aktivitas (server-side list: paging, sort, filter, search, include).
+     * List activity logs (server-side list: paging, sort, filter, search, include).
      *
-     * Pengganti `data_tables_init()` legacy — kontrak DataTables diterjemahkan
-     * ke query param REST:
+     * Server-side list contract translated to REST query params:
      *   ?sort=-created_at,id            (whitelist, prefix - = DESC)
      *   &filter[tenant_id]=1            (exact)
      *   &filter[causer_id]=1            (exact)
      *   &filter[subject_type]=...       (exact)
      *   &filter[subject_id]=5           (exact)
-     *   &filter[description]=cari       (partial / LIKE)
+     *   &filter[description]=invoice    (partial / LIKE)
      *   &search=...                     (global search: description + subject_type)
-     *   &include=causer,tenant          (eager load relasi)
+     *   &include=causer,tenant          (eager load relations)
      *   &per_page=25&page=2             (pagination)
      *
      * @authenticated
      *
-     * @queryParam sort string optional Kolom urut (whitelist): id, description, subject_type, subject_id, causer_id, tenant_id, created_at; prefix - untuk DESC. Example: -created_at
-     * @queryParam filter[tenant_id] integer optional Filter exact tenant. Example: 1
-     * @queryParam filter[causer_id] integer optional Filter exact user penyebab. Example: 1
-     * @queryParam filter[subject_type] string optional Filter exact tipe subjek. Example: Spine\Models\Invoice
-     * @queryParam filter[subject_id] integer optional Filter exact id subjek. Example: 5
-     * @queryParam filter[description] string optional Filter partial (LIKE) deskripsi. Example: invoice
-     * @queryParam search string optional Pencarian global (description + subject_type). Example: invoice
-     * @queryParam include string optional Relasi yang di-eager-load: causer,subject,tenant (pisahkan koma). Example: causer,tenant
-     * @queryParam per_page integer optional Jumlah per halaman (max 100). Example: 25
-     * @queryParam page integer optional Halaman. Example: 2
+     * @queryParam sort string optional Sort column (whitelist): id, description, subject_type, subject_id, causer_id, tenant_id, created_at; prefix - for DESC. Example: -created_at
+     * @queryParam filter[tenant_id] integer optional Exact-match filter on tenant. Example: 1
+     * @queryParam filter[causer_id] integer optional Exact-match filter on the causing user. Example: 1
+     * @queryParam filter[subject_type] string optional Exact-match filter on subject type. Example: Spine\Models\Invoice
+     * @queryParam filter[subject_id] integer optional Exact-match filter on subject ID. Example: 5
+     * @queryParam filter[description] string optional Partial (LIKE) filter on description. Example: invoice
+     * @queryParam search string optional Global search across description and subject_type. Example: invoice
+     * @queryParam include string optional Relations to eager-load: causer,subject,tenant (comma-separated). Example: causer,tenant
+     * @queryParam per_page integer optional Items per page (max 100). Example: 25
+     * @queryParam page integer optional Page. Example: 2
      *
      * @response scenario=success {
      *   "data": [
@@ -79,7 +78,7 @@ class ActivityLogController extends Controller
     {
         $tenantId = $request->query('tenant_id') !== null ? (int) $request->query('tenant_id') : null;
 
-        // total sebelum filter (padanan iTotalRecords / meta.total)
+        // total before filtering (equivalent to meta.total)
         $total = $this->activity->query($tenantId)->count();
 
         $query = QueryBuilder::for($this->activity->query($tenantId))
@@ -97,7 +96,7 @@ class ActivityLogController extends Controller
             ->allowedIncludes(['causer', 'subject', 'tenant'])
             ->defaultSort('-created_at');
 
-        // global search (padanan search[value] data_tables_init)
+        // global search
         if ($request->filled('search')) {
             $term = $request->query('search');
             $query->where(function ($q) use ($term) {
@@ -130,11 +129,11 @@ class ActivityLogController extends Controller
     }
 
     /**
-     * Ambil satu log aktivitas.
+     * Get a single activity log.
      *
      * @authenticated
      *
-     * @urlParam id integer required ID log. Example: 1
+     * @urlParam id integer required Log ID. Example: 1
      *
      * @response scenario=success {
      *   "id": 1,
@@ -147,7 +146,7 @@ class ActivityLogController extends Controller
      *   "properties": {"ip": "127.0.0.1"},
      *   "created_at": "2026-08-28T00:00:00+00:00"
      * }
-     * @response status=404 scenario="tidak ditemukan" {
+     * @response status=404 scenario="not found" {
      *   "message": "Activity log not found"
      * }
      */
@@ -163,16 +162,16 @@ class ActivityLogController extends Controller
     }
 
     /**
-     * Catat log aktivitas baru.
+     * Record a new activity log entry.
      *
      * @authenticated
      *
-     * @bodyParam description string required Deskripsi aktivitas. Example: Invoice dibuat
-     * @bodyParam subject_type string optional Tipe subjek (FQCN). Example: Spine\Models\Invoice
-     * @bodyParam subject_id integer optional ID subjek. Example: 5
-     * @bodyParam causer_id integer optional ID user penyebab. Example: 1
-     * @bodyParam tenant_id integer optional Scope tenant. Example: 1
-     * @bodyParam properties object optional Data tambahan. Example: {"ip": "127.0.0.1"}
+     * @bodyParam description string required Activity description. Example: Invoice dibuat
+     * @bodyParam subject_type string optional Subject type (FQCN). Example: Spine\Models\Invoice
+     * @bodyParam subject_id integer optional Subject ID. Example: 5
+     * @bodyParam causer_id integer optional ID of the causing user. Example: 1
+     * @bodyParam tenant_id integer optional Tenant scope. Example: 1
+     * @bodyParam properties object optional Additional data. Example: {"ip": "127.0.0.1"}
      *
      * @response scenario=success {
      *   "id": 1,
@@ -211,16 +210,16 @@ class ActivityLogController extends Controller
     }
 
     /**
-     * Hapus log aktivitas.
+     * Delete an activity log.
      *
      * @authenticated
      *
-     * @urlParam id integer required ID log. Example: 1
+     * @urlParam id integer required Log ID. Example: 1
      *
      * @response scenario=success {
      *   "message": "Activity log deleted"
      * }
-     * @response status=404 scenario="tidak ditemukan" {
+     * @response status=404 scenario="not found" {
      *   "message": "Activity log not found"
      * }
      */

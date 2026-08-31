@@ -11,11 +11,9 @@ use Spine\Events\SmsSent;
 use Illuminate\Support\Facades\Config;
 
 /**
- * SmsService — registry + factory untuk SMS provider.
+ * SmsService — registry and factory for SMS providers.
  *
- * Diadopsi dari pola abstraksi `sms/` legacy CRM (Twilio, Clickatell, Msg91).
- * Driver aktif dipilih dari config (SMS_DRIVER).
- *
+ * The active driver is selected from config (SMS_DRIVER).
  */
 class SmsService
 {
@@ -45,7 +43,7 @@ class SmsService
 
     private function resolve(string $class, array $cfg): SmsDriver
     {
-        // Driver dengan kredensial di konstruktor
+        // Drivers that take credentials in the constructor
         if ($class === TwilioSmsDriver::class) {
             return new $class(
                 (string) ($cfg['account_sid'] ?? ''),
@@ -65,7 +63,7 @@ class SmsService
     }
 
     /**
-     * Daftar driver yang terkonfigurasi.
+     * List of configured drivers.
      *
      * @return list<string>
      */
@@ -75,7 +73,7 @@ class SmsService
     }
 
     /**
-     * Kirim SMS.
+     * Send an SMS.
      *
      * @param  array{to: string, body: string, driver?: string|null}  $payload
      */
@@ -86,7 +84,7 @@ class SmsService
         $driver = $payload['driver'] ?? null;
 
         if ($to === '' || $body === '') {
-            return ['success' => false, 'message' => 'to dan body wajib diisi'];
+            return ['success' => false, 'message' => "'to' and 'body' are required"];
         }
 
         $result = $this->driver($driver)->send($to, $body);

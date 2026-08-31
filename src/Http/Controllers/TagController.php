@@ -10,15 +10,14 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
- * API tagging (spatie/laravel-tags).
+ * Tagging API (spatie/laravel-tags).
  *
- * Diadopsi dari `App_tags.php` legacy CRM.
- * Mendukung pengelolaan tag global + attach/detach ke model ber-tag.
+ * Global tag management + attach/detach on taggable models.
  *
  * Endpoint:
- *   GET  /api/tags              -> daftar semua tag (opsional ?type=)
- *   POST /api/tags              -> buat tag baru
- *   DELETE /api/tags/{id}       -> hapus tag
+ *   GET  /api/tags              -> list all tags (optional ?type=)
+ *   POST /api/tags              -> create a tag
+ *   DELETE /api/tags/{id}       -> delete a tag
  *
  * @group api/v1
      * @subgroup Tags
@@ -32,11 +31,11 @@ class TagController extends Controller
     ) {}
 
     /**
-     * Daftar semua tag.
+     * List all tags.
      *
      * @authenticated
      *
-     * @queryParam type string Filter berdasarkan tipe tag. Example: invoice
+     * @queryParam type string Filter by tag type. Example: invoice
      *
      * @response {
      *   "data": [ { "id": 1, "name": "penting" } ]
@@ -57,12 +56,12 @@ class TagController extends Controller
     }
 
     /**
-     * Buat tag baru.
+     * Create a new tag.
      *
      * @authenticated
      *
-     * @bodyParam name string required Nama tag. Example: prioritas-tinggi
-     * @bodyParam type string optional Tipe tag. Example: invoice
+     * @bodyParam name string required Tag name. Example: prioritas-tinggi
+     * @bodyParam type string optional Tag type. Example: invoice
      *
      * @response status=201 {
      *   "data": { "id": 1, "name": "prioritas-tinggi" }
@@ -85,11 +84,11 @@ class TagController extends Controller
     }
 
     /**
-     * Hapus tag.
+     * Delete a tag.
      *
      * @authenticated
      *
-     * @urlParam id integer required ID tag. Example: 1
+     * @urlParam id integer required Tag ID. Example: 1
      *
      * @response scenario=success {
      *   "message": "Tag deleted"

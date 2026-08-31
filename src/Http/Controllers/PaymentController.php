@@ -9,10 +9,9 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
- * API untuk payment gateway abstraction.
+ * Payment gateway abstraction API.
  *
- * Diadopsi dari pola `gateways/` legacy CRM (Stripe, Paypal, Mollie, dst).
- * Core hanya expose abstraction; setiap gateway diaktifkan konfiguratif.
+ * The core only exposes the abstraction; each gateway is enabled via config.
  *
  * @group api/v1
      * @subgroup Payment
@@ -24,7 +23,7 @@ class PaymentController extends Controller
     ) {}
 
     /**
-     * List gateway yang terkonfigurasi.
+     * List configured gateways.
      *
      * @authenticated
      *
@@ -49,10 +48,10 @@ class PaymentController extends Controller
      *
      * @authenticated
      *
-     * @bodyParam gateway string required Nama gateway. Example: stripe
-     * @bodyParam amount int required Amount dalam satuan terkecil. Example: 50000
+     * @bodyParam gateway string required Gateway name. Example: stripe
+     * @bodyParam amount int required Amount in the smallest unit. Example: 50000
      * @bodyParam currency string required Currency code. Example: IDR
-     * @bodyParam metadata array<string, mixed> optional Metadata tambahan.
+     * @bodyParam metadata array<string, mixed> optional Additional metadata.
      *
      * @response scenario=success {
      *   "success": true,
@@ -81,7 +80,7 @@ class PaymentController extends Controller
     }
 
     /**
-     * Webhook handler untuk payment gateway.
+     * Webhook handler for the payment gateway.
      *
      * @response scenario=success {"success": true}
      */

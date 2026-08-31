@@ -12,11 +12,9 @@ use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 
 /**
- * ExcelService — import/export data Excel/CSV.
+ * ExcelService — Excel/CSV data import/export.
  *
- * Diadopsi dari `import/` legacy CRM (Import_customers, Import_items, Import_leads).
- * Pola: import/export berat dijalankan via Job + queue (prinsip proses berat).
- *
+ * Heavy import/export work is dispatched as queued jobs.
  */
 class ExcelService
 {
@@ -26,10 +24,10 @@ class ExcelService
     }
 
     /**
-     * Export data array menjadi file Excel/CSV di storage.
+     * Export an array of data to an Excel/CSV file in storage.
      *
      * @param  list<array<string, mixed>>  $rows
-     * @param  string  $filename  tanpa ekstensi
+     * @param  string  $filename  without extension
      * @param  string  $extension  xlsx | csv
      * @param  list<string>  $headings
      * @return array{path: string, count: int}
@@ -54,9 +52,9 @@ class ExcelService
     }
 
     /**
-     * Import file Excel/CSV menjadi array baris (associative, key = heading).
+     * Import an Excel/CSV file into an array of rows (associative, key = heading).
      *
-     * @param  string  $path  path relatif di storage disk excel
+     * @param  string  $path  relative path on the excel storage disk
      * @return array{rows: list<array<string, mixed>>, count: int}
      */
     public function import(string $path): array
@@ -77,7 +75,7 @@ class ExcelService
     }
 
     /**
-     * Upload file lalu langsung import (konvenien).
+     * Upload a file and import it immediately (convenience).
      *
      * @return array{rows: list<array<string, mixed>>, count: int}
      */

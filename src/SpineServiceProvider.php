@@ -21,12 +21,12 @@ class SpineServiceProvider extends ServiceProvider
     }
 
     /**
-     * Routes generik (settings, activity-logs, meta, files, relations, mail,
+     * Generic routes (settings, activity-logs, meta, files, relations, mail,
      * pdf, sms, qr-code, excel, tags, modules, system, payment, number-to-word,
-     * gdpr) — dimuat otomatis dari package.
+     * gdpr) — loaded automatically from the package.
      *
-     * Dibungkus group 'api' + prefix 'api' (default Laravel) — isi file
-     * menambah prefix 'v1' sehingga endpoint jadi /api/v1/*.
+     * Wrapped in the 'api' middleware group with an 'api' prefix (Laravel
+     * default); the route file adds a 'v1' prefix so endpoints become /api/v1/*.
      */
     private function loadRoutes(): void
     {

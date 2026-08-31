@@ -9,23 +9,18 @@ use Spine\Events\SettingUpdated;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 /**
- * Service pengelolaan settings ( SettingsService ).
- * 
- * Diadopsi dari settings_helper.php legacy CRM:
- *   - add_option → set()
- *   - get_option → get() dengan fallback
- *   - update_option → set() (sama)
- *   - delete_option → delete()
- *   - option_exists → has()
+ * Settings management service.
+ *
+ * Thin wrapper over the Setting model with tenant scoping.
  *
  */
 class SettingService
 {
     /**
-     * Simpan atau update setting.
-     * 
-     * @param string $key   Nama setting
-     * @param mixed  $value Nilai setting (disimpan sebagai teks)
+     * Create or update a setting.
+     *
+     * @param string $key   Setting name
+     * @param mixed  $value Setting value (stored as text)
      * @param int|null $tenantId  Tenant scope (null = global/platform)
      * @return \Spine\Models\Setting
      */
@@ -53,10 +48,10 @@ class SettingService
     }
 
     /**
-     * Ambil nilai setting. Jika tidak ada, kembalikan $default.
-     * 
-     * @param string $key      Nama setting
-     * @param mixed  $default  Nilai fallback jika tidak ada
+     * Get a setting value, falling back to $default when absent.
+     *
+     * @param string $key      Setting name
+     * @param mixed  $default  Fallback value when absent
      * @param int|null $tenantId Scope (null = global)
      * @return mixed
      */
@@ -72,9 +67,9 @@ class SettingService
     }
 
     /**
-     * Hapus setting.
-     * 
-     * @param string $key      Nama setting
+     * Delete a setting.
+     *
+     * @param string $key      Setting name
      * @param int|null $tenantId Scope
      * @return bool
      */
@@ -84,9 +79,9 @@ class SettingService
     }
 
     /**
-     * Cek apakah setting ada.
-     * 
-     * @param string $key      Nama setting
+     * Check whether a setting exists.
+     *
+     * @param string $key      Setting name
      * @param int|null $tenantId Scope
      * @return bool
      */
@@ -96,8 +91,8 @@ class SettingService
     }
 
     /**
-     * Ambil semua settings dalam scope tertentu.
-     * 
+     * Get all settings within a given scope.
+     *
      * @param int|null $tenantId Scope
      * @return \Illuminate\Database\Eloquent\Collection
      */
@@ -107,9 +102,9 @@ class SettingService
     }
 
     /**
-     * Query builder untuk scope tertentu.
-     * 
-     * @param int|null $tenantId Scope (null = tanpa filter tenant)
+     * Query builder for a given scope.
+     *
+     * @param int|null $tenantId Scope (null = no tenant filter)
      * @return \Illuminate\Database\Eloquent\Builder
      */
     protected function resolveQuery(?int $tenantId): \Illuminate\Database\Eloquent\Builder
@@ -124,10 +119,10 @@ class SettingService
     }
 
     /**
-     * Alias get() dengan nama yang familiar dari legacy CRM.
-     * 
-     * @param string $key      Nama setting
-     * @param mixed  $default  Nilai fallback
+     * Alias of get().
+     *
+     * @param string $key      Setting name
+     * @param mixed  $default  Fallback value
      * @param int|null $tenantId Scope
      * @return mixed
      */
@@ -137,15 +132,15 @@ class SettingService
     }
 
     /**
-     * Ambil setting dengan fallback global -> tenant.
+     * Get a setting with global -> tenant fallback.
      *
-     * Sesuai docs/domain-multitenancy.md: setting level per-tenant menimpa
-     * setting global. Urutan: (1) cari di tenant scope, (2) kalau tidak ada,
-     * fallback ke global (tenant_id NULL), (3) kalau tetap kosong pakai $default.
+     * Per docs/domain-multitenancy.md: per-tenant settings override global
+     * ones. Order: (1) look in the tenant scope, (2) if absent, fall back to
+     * global (tenant_id NULL), (3) if still empty, use $default.
      *
-     * @param string $key        Nama setting
-     * @param int|null $tenantId Scope tenant (null = hanya cek global)
-     * @param mixed  $default    Nilai fallback terakhir
+     * @param string $key        Setting name
+     * @param int|null $tenantId Tenant scope (null = check global only)
+     * @param mixed  $default    Final fallback value
      * @return mixed
      */
     public function findWithFallback(string $key, ?int $tenantId = null, mixed $default = null): mixed

@@ -5,34 +5,33 @@ declare(strict_types=1);
 namespace Spine\Services;
 
 /**
- * NumberToWord — konversi angka ke terbilang (Indonesian & Indian format).
+ * NumberToWord — convert numbers to words (Indonesian & Indian formats).
  *
- * Diadopsi dari `App_number_to_word.php` legacy CRM.
- * Dipakai untuk: invoice PDF (terbilang jumlah), dokumen keuangan.
+ * Used for: invoice PDFs (amounts spelled out), financial documents.
  *
  */
 class NumberToWord
 {
-    /** Indonesian satuan */
+    /** Indonesian units */
     private const ID_UNITS = [
         0 => 'nol', 1 => 'satu', 2 => 'dua', 3 => 'tiga', 4 => 'empat',
         5 => 'lima', 6 => 'enam', 7 => 'tujuh', 8 => 'delapan', 9 => 'sembilan',
     ];
 
-    /** Indonesian belasan */
+    /** Indonesian teens */
     private const ID_TEENS = [
         10 => 'sepuluh', 11 => 'sebelas', 12 => 'dua belas', 13 => 'tiga belas',
         14 => 'empat belas', 15 => 'lima belas', 16 => 'enam belas',
         17 => 'tujuh belas', 18 => 'delapan belas', 19 => 'sembilan belas',
     ];
 
-    /** Indonesian puluhan */
+    /** Indonesian tens */
     private const ID_TENS = [
         2 => 'dua puluh', 3 => 'tiga puluh', 4 => 'empat puluh', 5 => 'lima puluh',
         6 => 'enam puluh', 7 => 'tujuh puluh', 8 => 'delapan puluh', 9 => 'sembilan puluh',
     ];
 
-    /** Indonesian skala */
+    /** Indonesian scales */
     private const ID_SCALES = [
         1_000_000_000 => 'miliar',
         1_000_000 => 'juta',
@@ -49,11 +48,11 @@ class NumberToWord
     ];
 
     /**
-     * Konversi angka ke terbilang Indonesian (format Rupiah standar).
+     * Convert a number to Indonesian words (standard Rupiah format).
      *
      * @param int|float|string $number
-     * @param string $currency  suffix mata uang (default: 'rupiah')
-     * @return string  contoh: "satu juta dua ratus tiga puluh ribu empat ratus lima puluh enam rupiah"
+     * @param string $currency  currency suffix (default: 'rupiah')
+     * @return string  e.g.: "satu juta dua ratus tiga puluh ribu empat ratus lima puluh enam rupiah"
      */
     public function convert(int|float|string $number, string $currency = 'rupiah'): string
     {
@@ -67,7 +66,7 @@ class NumberToWord
     }
 
     /**
-     * Konversi format Indian (lakh/crore) — opsional untuk multi-currency.
+     * Convert using the Indian format (lakh/crore) — optional for multi-currency.
      *
      * @param int|float|string $number
      * @param string $currency
@@ -85,7 +84,7 @@ class NumberToWord
     }
 
     /**
-     * Konversi angka Indonesia (rekursif per skala).
+     * Convert an Indonesian number (recursive per scale).
      */
     private function convertId(int $num): string
     {
@@ -124,7 +123,7 @@ class NumberToWord
     }
 
     /**
-     * Konversi Indian numbering system (rekursif per skala).
+     * Convert using the Indian numbering system (recursive per scale).
      */
     private function convertIn(int $num): string
     {

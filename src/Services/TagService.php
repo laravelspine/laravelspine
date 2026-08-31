@@ -9,16 +9,15 @@ use Illuminate\Support\Collection;
 use Spatie\Tags\Tag;
 
 /**
- * TagService — wrapper tagging.
+ * TagService — tagging wrapper.
  *
- * Diadopsi dari `App_tags.php` legacy CRM (get, create, save, relation, all, flat).
- * Implementasi memakai package spatie/laravel-tags (native Laravel).
- *
+ * Provides get, create, save, relation, all and flat tag operations,
+ * backed by the spatie/laravel-tags package (native Laravel).
  */
 class TagService
 {
     /**
-     * Dapatkan/ciptakan tag berdasarkan nama + type.
+     * Get or create a tag by name + type.
      */
     public function findOrCreate(string $name, ?string $type = null): Tag
     {
@@ -26,7 +25,7 @@ class TagService
     }
 
     /**
-     * Ambil semua tag.
+     * Get all tags.
      *
      * @return Collection<int, Tag>
      */
@@ -36,7 +35,7 @@ class TagService
     }
 
     /**
-     * Tag sebuah model.
+     * Tag a model.
      *
      * @param  string|array  $tags
      */
@@ -46,7 +45,7 @@ class TagService
     }
 
     /**
-     * Sinkronkan tag model (hapus yang tidak ada di daftar).
+     * Sync a model's tags (remove those not in the list).
      *
      * @param  list<string>  $tags
      */
@@ -56,7 +55,7 @@ class TagService
     }
 
     /**
-     * Lepas tag dari model.
+     * Detach tags from a model.
      *
      * @param  string|array  $tags
      */
@@ -66,7 +65,7 @@ class TagService
     }
 
     /**
-     * Ambil daftar tag milik sebuah model.
+     * Get the list of tags belonging to a model.
      *
      * @return Collection<int, Tag>
      */
@@ -76,7 +75,7 @@ class TagService
     }
 
     /**
-     * Hapus tag secara permanen.
+     * Permanently delete a tag.
      */
     public function delete(int $id): bool
     {

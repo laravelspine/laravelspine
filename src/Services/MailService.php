@@ -13,19 +13,17 @@ use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * MailService — wrapper untuk Laravel Mail + Notification.
+ * MailService — wrapper around Laravel Mail + Notification.
  *
- * Diadopsi dari `App_mailer.php` / `App_Email.php` legacy CRM.
- * Menyediakan API untuk:
- * - Kirim email via Mailable (sync atau queue)
- * - Kirim notifikasi via Notification channel
- * - Antrean email + retry + cleanup (App_Email)
- *
+ * Provides an API for:
+ * - Sending email via Mailable (sync or queued)
+ * - Sending notifications via the Notification channel
+ * - Email queueing, retry, and cleanup
  */
 class MailService
 {
     /**
-     * Kirim email menggunakan Mailable.
+     * Send an email using a Mailable.
      *
      * @param  array{to: string, subject: string, view: string, data?: array<string, mixed>, queue?: bool, queue_name?: string|null}  $payload
      */
@@ -57,7 +55,7 @@ class MailService
     }
 
     /**
-     * Kirim notifikasi ke user tertentu.
+     * Send a notification to a specific user.
      *
      * @param  array{user_id: int, subject: string, body: string, action_url?: string|null}  $payload
      */
@@ -83,7 +81,7 @@ class MailService
     }
 
     /**
-     * Kirim notifikasi broadcast ke banyak user.
+     * Broadcast a notification to many users.
      *
      * @param  array{user_ids: list<int>, subject: string, body: string, action_url?: string|null}  $payload
      */
@@ -110,9 +108,9 @@ class MailService
     }
 
     /**
-     * Retry semua failed mail job (App_Email::retry_queue).
+     * Retry all failed mail jobs.
      *
-     * @return int jumlah job yang di-retry
+     * @return int number of jobs retried
      */
     public function retryQueue(?string $queueName = null): int
     {
@@ -130,9 +128,9 @@ class MailService
     }
 
     /**
-     * Bersihkan failed mail job lama (App_Email::clean_up_old_queue).
+     * Clean up old failed mail jobs.
      *
-     * @return int jumlah job yang dihapus
+     * @return int number of jobs deleted
      */
     public function cleanUpOldQueue(?string $queueName = null, int $maxAgeDays = 7): int
     {
@@ -154,7 +152,7 @@ class MailService
     }
 
     /**
-     * Cek jumlah antrean email yang menunggu.
+     * Check the number of queued emails waiting.
      */
     public function pendingCount(?string $queueName = null): int
     {

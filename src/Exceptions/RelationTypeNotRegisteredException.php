@@ -7,10 +7,10 @@ namespace Spine\Exceptions;
 use Exception;
 
 /**
- * Thrown ketika RelationService.resolve() dipanggil untuk tipe
- * yang tidak terdaftar (belum di-register oleh module via hook).
+ * Thrown when RelationService::resolve() is called for a type that
+ * has not been registered (not yet registered by a module via hook).
  *
- * Ini guard keamanan: core hanya me-resolve tipe opt-in.
+ * This is a security guard: the core only resolves opt-in types.
  */
 class RelationTypeNotRegisteredException extends Exception
 {

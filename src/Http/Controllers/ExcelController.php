@@ -11,14 +11,13 @@ use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 
 /**
- * API import/export data Excel/CSV.
+ * Excel/CSV data import/export API.
  *
- * Diadopsi dari `import/` legacy CRM (Import_customers, Import_items, Import_leads).
- * Proses berat (import besar / export banyak baris) disarankan via Job + queue.
+ * Heavy work (large imports / many-row exports) should run via Job + queue.
  *
  * Endpoint:
- *   POST /api/excel/export   -> export data array ke file Excel/CSV
- *   POST /api/excel/import   -> import file (multipart) menjadi baris
+ *   POST /api/excel/export   -> export an array of data to an Excel/CSV file
+ *   POST /api/excel/import   -> import a file (multipart) into rows
  *
  * @group api/v1
      * @subgroup Excel

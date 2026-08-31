@@ -11,17 +11,18 @@ use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 
 /**
- * API upload file (Laravel Storage + metadata mirip tblfiles legacy CRM).
+ * File upload API (Laravel Storage + attachment metadata).
  *
- * Upload menyimpan file fisik ke storage (per-tenant) dan mencatat metadata
- * ke tabel `attachments`. Akses file via route download ber-auth.
+ * Uploads store the physical file in storage (per-tenant) and record metadata
+ * in the `attachments` table. File access goes through authenticated download
+ * routes.
  *
  * Endpoint:
  *   POST   /api/files                  -> upload (multipart)
- *   GET    /api/files/{id}             -> meta attachment
+ *   GET    /api/files/{id}             -> attachment meta
  *   GET    /api/files/{id}/download    -> stream file (force download)
  *   GET    /api/files/{id}/preview     -> stream inline (image/pdf)
- *   DELETE /api/files/{id}             -> hapus file + meta
+ *   DELETE /api/files/{id}             -> delete file + meta
  *   GET    /api/files/limits           -> max upload size (utility)
  *
  * @group api/v1
@@ -34,14 +35,14 @@ class FileController extends Controller
     ) {}
 
     /**
-     * Upload file baru.
+     * Upload a new file.
      *
      * @authenticated
      *
-     * @bodyParam file file required File yang diupload.
-     * @bodyParam rel_type string required Tipe entity (invoice, client, task). Example: invoice
-     * @bodyParam rel_id integer required ID entity. Example: 10
-     * @bodyParam tenant_id integer optional ID tenant (multi-tenant). Example: 1
+     * @bodyParam file file required The uploaded file.
+     * @bodyParam rel_type string required Entity type (invoice, client, task). Example: invoice
+     * @bodyParam rel_id integer required Entity ID. Example: 10
+     * @bodyParam tenant_id integer optional Tenant ID (multi-tenant). Example: 1
      * @bodyParam disk string optional 'local' (default, private) | 'public'. Example: local
      *
      * @response scenario=success {
@@ -88,7 +89,7 @@ class FileController extends Controller
     }
 
     /**
-     * Ambil meta attachment.
+     * Get attachment metadata.
      *
      * @authenticated
      *
@@ -142,7 +143,7 @@ class FileController extends Controller
     }
 
     /**
-     * Hapus attachment (file fisik + meta).
+     * Delete an attachment (physical file + metadata).
      *
      * @authenticated
      *
@@ -167,7 +168,7 @@ class FileController extends Controller
     }
 
     /**
-     * Batas maksimal upload (utility, dari php.ini).
+     * Maximum upload size (utility, from php.ini).
      *
      * @authenticated
      *

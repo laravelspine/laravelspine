@@ -9,22 +9,21 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
- * Service aktivitas log (ActivityLogService).
+ * Activity log service.
  *
- * Diadopsi dari database_helper.php legacy CRM:
- *   - log_activity → log()
+ * Records model activity and provides scoped queries over the log.
  *
  */
 class ActivityLogService
 {
     /**
-     * Catat aktivitas.
+     * Record an activity.
      *
-     * @param string $description Deskripsi singkat aktivitas.
-     * @param Model|int|null $subject  Entitas yang menjadi subjek (mis. Invoice yang dimodifikasi).
-     * @param Model|int|null $causer  Pengguna/orang yang melakukan aktivitas.
-     * @param array $properties Data tambahan (JSON).
-     * @param int|null $tenantId Scope tenant (null = global).
+     * @param string $description Short description of the activity.
+     * @param Model|int|null $subject  Entity that is the subject (e.g. a modified Invoice).
+     * @param Model|int|null $causer  User who performed the activity.
+     * @param array $properties Additional data (JSON).
+     * @param int|null $tenantId Tenant scope (null = global).
      * @return \Spine\Models\ActivityLog
      */
     public function log(
@@ -68,9 +67,9 @@ class ActivityLogService
     }
 
     /**
-     * Query semua log (opsional filter).
+     * Query all logs (with optional filter).
      *
-     * @param int|null $tenantId Scope tenant.
+     * @param int|null $tenantId Tenant scope.
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function query(?int $tenantId = null): \Illuminate\Database\Eloquent\Builder

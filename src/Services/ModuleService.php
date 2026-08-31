@@ -12,16 +12,13 @@ use Nwidart\Modules\Module;
 use ZipArchive;
 
 /**
- * ModuleService — wrapper untuk nwidart/laravel-modules.
+ * ModuleService — a wrapper around nwidart/laravel-modules.
  *
- * Menyediakan API sederhana untuk:
- * - List modul dengan status (aktif/nonaktif/installed)
- * - Get module detail
- * - Cek apakah modul aktif
- * - Install modul dari zip upload / uninstall (purge opsional)
- *
- * Diadopsi dari `App_modules.php` + `App_module_installer.php` legacy CRM.
- * App_module_installer — ⚠️ PARCIAL, dilengkapi di Batch 10)
+ * Provides a simple API to:
+ * - List modules with status (enabled/disabled/installed)
+ * - Get module details
+ * - Check whether a module is enabled
+ * - Install a module from a zip upload / uninstall (optional purge)
  */
 class ModuleService
 {
@@ -99,7 +96,6 @@ class ModuleService
         }
 
         $module->disable();
-
         return true;
     }
 
@@ -111,13 +107,13 @@ class ModuleService
     }
 
     /**
-     * Install modul dari file zip (pola `App_module_installer` legacy).
+     * Install a module from a zip file.
      *
-     * Zip wajib berisi `module.json` (di root zip atau di dalam satu folder
-     * top-level). Modul diekstrak ke `modules/<Name>/`, langsung di-enable,
-     * lalu migrasi modul dijalankan (jika ada).
+     * The zip must contain a `module.json` (at the zip root or inside a single
+     * top-level folder). The module is extracted to `modules/<Name>/`, enabled
+     * right away, then the module migrations are run (if any).
      *
-     * @return array<string, mixed>|null detail modul, null jika gagal
+     * @return array<string, mixed>|null module details, null on failure
      */
     public function installFromZip(string $zipPath): ?array
     {
@@ -156,11 +152,11 @@ class ModuleService
         if (is_dir($targetDir)) {
             $zip->close();
 
-            return null; // sudah terinstall
+            return null; // already installed
         }
 
-        // Staging di DALAM modules/ (same filesystem → moveDirectory/rename aman;
-        // /tmp bisa beda FS → EXDEV). modules/ harus writable oleh user FPM.
+        // Stage INSIDE modules/ (same filesystem → moveDirectory/rename is safe;
+        // /tmp may be a different FS → EXDEV). modules/ must be writable by the FPM user.
         $staging = base_path('modules') . DIRECTORY_SEPARATOR . '.staging-' . uniqid('mod_', true);
         if (! File::makeDirectory($staging, 0755, true)) {
             $zip->close();
@@ -171,8 +167,8 @@ class ModuleService
         $zip->extractTo($staging);
         $zip->close();
 
-        // Zip berisi satu folder top-level → pindahkan isinya; selain itu
-        // pindahkan seluruh isi langsung ke target.
+        // If the zip contains a single top-level folder, move its contents;
+        // otherwise move everything straight to the target.
         $entries = array_values(array_diff(scandir($staging), ['.', '..']));
         if (count($entries) === 1 && is_dir($staging . '/' . $entries[0])) {
             File::moveDirectory($staging . '/' . $entries[0], $targetDir);
@@ -187,9 +183,9 @@ class ModuleService
             return null;
         }
 
-        // nwidart v12: Module::getPriority() strict-typed → TypeError kalau
-        // 'priority' tidak ada di module.json (modul rusak bisa 500 di semua
-        // list). Normalisasi default '0' supaya zip apa pun bisa terinstall.
+        // nwidart v12: Module::getPriority() is strict-typed → TypeError if
+        // 'priority' is missing from module.json (a broken module could 500
+        // every list). Normalize to a default of '0' so any zip can be installed.
         $moduleJsonPath = $targetDir . '/module.json';
         $moduleMeta = json_decode((string) file_get_contents($moduleJsonPath), true);
         if (is_array($moduleMeta) && ! isset($moduleMeta['priority'])) {
@@ -197,23 +193,23 @@ class ModuleService
             file_put_contents($moduleJsonPath, json_encode($moduleMeta, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . PHP_EOL);
         }
 
-        // Reset cache static nwidart DULU, baru setEnabled — kalau tidak,
-        // find() di dalam setEnabled masih kena daftar modul lama (tanpa
-        // modul baru) → enable jadi no-op.
+        // Reset nwidart's static cache FIRST, then setEnabled — otherwise
+        // find() inside setEnabled still sees the old module list (without
+        // the new module) → enable becomes a no-op.
         $this->clearModuleCache();
         $this->setEnabled($moduleName, true);
 
         try {
             Artisan::call('module:migrate', ['module' => $moduleName]);
         } catch (\Throwable) {
-            // modul tanpa migrasi / migrasi gagal tidak menggagalkan install
+            // a module without migrations / failed migrations must not fail the install
         }
 
         return $this->find($moduleName);
     }
 
     /**
-     * Uninstall modul: nonaktifkan; dengan $purge=true direktori ikut dihapus.
+     * Uninstall a module: disable it; with $purge=true the directory is removed too.
      */
     public function uninstall(string $name, bool $purge = false): bool
     {
@@ -239,10 +235,10 @@ class ModuleService
     }
 
     /**
-     * nwidart v12 meng-cache daftar modul di STATIC FileRepository::$modules
-     * (dipakai scan() lintas request) + file bootstrap/cache/modules.php.
-     * Setelah install/uninstall KEDUANYA harus dibersihkan, atau daftar modul
-     * stale: find() → null (422), list berisi modul yang sudah dihapus.
+     * nwidart v12 caches the module list in the STATIC FileRepository::$modules
+     * property (used by scan() across requests) plus the bootstrap/cache/modules.php
+     * file. After install/uninstall BOTH must be cleared, or the module list goes
+     * stale: find() → null (422), list contains deleted modules.
      */
     private function clearModuleCache(): void
     {
@@ -250,16 +246,16 @@ class ModuleService
 
         try {
             $prop = new \ReflectionProperty(\Nwidart\Modules\FileRepository::class, 'modules');
-            $prop->setValue(null, []); // static property → object arg diabaikan
+            $prop->setValue(null, []); // static property → object arg is ignored
         } catch (\Throwable) {
-            // versi nwidart lain — abaikan
+            // other nwidart versions — ignore
         }
     }
 
     /**
-     * Set status enabled/disabled via nwidart activator (in-memory + file).
-     * JANGAN tulis modules_statuses.json langsung — FileActivator menyimpan
-     * status di memori per-proses; tulis manual membuat hasStatus() stale.
+     * Set enabled/disabled status via the nwidart activator (in-memory + file).
+     * Do NOT write modules_statuses.json directly — FileActivator keeps status
+     * in per-process memory; writing manually makes hasStatus() stale.
      */
     private function setEnabled(string $name, bool $enabled): void
     {
@@ -284,8 +280,8 @@ class ModuleService
      */
     private function mapModule(Module $module): array
     {
-        // nwidart v12: Module::json() THROWS FileNotFoundException kalau file
-        // tidak ada (bukan return null) — modul malformed tidak boleh 500.
+        // nwidart v12: Module::json() THROWS FileNotFoundException if the file
+        // is missing (instead of returning null) — malformed modules must not 500.
         try {
             $composerJson = $module->json('composer.json');
             $composer = $composerJson ? $composerJson->all() : [];
@@ -297,7 +293,7 @@ class ModuleService
             $namespace = array_keys($composer['autoload']['psr-4'])[0] ?? null;
         }
 
-        // nwidart v12 strict-typed: getPriority() TypeError kalau key tidak ada.
+        // nwidart v12 is strict-typed: getPriority() TypeErrors if the key is missing.
         $priority = '0';
         try {
             $priority = $module->getPriority();

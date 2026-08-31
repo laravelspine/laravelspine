@@ -10,14 +10,14 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
- * API resolver relasi antar entity (inti dari relation_helper legacy CRM).
+ * API resolver for relations between entities.
  *
- * Core TIDAK tahu domain; hanya me-resolve tipe yang sudah di-register
- * oleh module via hook (RelationService::registerResolver).
+ * The core does not know the domain; it only resolves types registered
+ * by modules via RelationService::registerResolver().
  *
  * Endpoint:
- *   GET /api/relations/{type}/{id}   -> data relasi (opt-in, hanya tipe terdaftar)
- *   GET /api/relations/types         -> list tipe terdaftar
+ *   GET /api/relations/{type}/{id}   -> relation data (opt-in, registered types only)
+ *   GET /api/relations/types         -> list registered types
  *
  * @group api/v1
      * @subgroup Relations
@@ -30,7 +30,7 @@ class RelationController extends Controller
     }
 
     /**
-     * List tipe relasi yang terdaftar (introspeksi).
+     * List registered relation types (introspection).
      *
      * @authenticated
      *
@@ -44,20 +44,20 @@ class RelationController extends Controller
     }
 
     /**
-     * Resolve entity by type + id.
+     * Resolve an entity by type + id.
      *
-     * Hanya tipe yang sudah di-register (opt-in) yang bisa di-resolve.
-     * Tipe tidak terdaftar -> 404.
+     * Only registered (opt-in) types can be resolved.
+     * Unregistered types -> 404.
      *
      * @authenticated
      *
-     * @urlParam type string required Tipe relasi terdaftar. Example: user
+     * @urlParam type string required Registered relation type. Example: user
      * @urlParam id integer required Entity id. Example: 1
      *
      * @response scenario=success {
      *   "id": 1, "type": "user", "name": "Admin", "email": "a@b.c", "exists": true
      * }
-     * @response status=404 scenario=tipe tidak terdaftar {
+     * @response status=404 scenario=unregistered type {
      *   "message": "Relation type 'ghost' is not registered."
      * }
      */

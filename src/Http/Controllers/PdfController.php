@@ -11,15 +11,14 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
- * API generator dokumen PDF.
+ * PDF document generator API.
  *
- * Diadopsi dari `pdf/` dan `App_bulk_pdf_export.php` legacy CRM.
- * Mendukung generate single (sync) dan bulk export via Job (queue).
+ * Supports single synchronous generation and bulk export via a queued job.
  *
  * Endpoint:
- *   POST /api/pdf/generate         -> generate satu PDF dari view, simpan ke storage
- *   POST /api/pdf/from-html        -> render HTML string menjadi PDF
- *   POST /api/pdf/bulk-export      -> dispatch job bulk PDF (background)
+ *   POST /api/pdf/generate         -> generate one PDF from a view, store to storage
+ *   POST /api/pdf/from-html        -> render an HTML string into a PDF
+ *   POST /api/pdf/bulk-export      -> dispatch a bulk PDF job (background)
  *
  * @group api/v1
      * @subgroup Pdf
@@ -33,17 +32,17 @@ class PdfController extends Controller
     ) {}
 
     /**
-     * Generate satu PDF dari Blade view dan simpan ke storage.
+     * Generate a single PDF from a Blade view and store it in storage.
      *
      * @authenticated
      *
-     * @bodyParam view string required Nama view Blade. Example: pdf.invoice
-     * @bodyParam data array Data yang diteruskan ke view.
-     * @bodyParam filename string Nama file (tanpa ekstensi). Example: INV-0001
-     * @bodyParam rel_type string Tipe entity (invoice, estimate, contract). Example: invoice
-     * @bodyParam rel_id integer ID entity. Example: 10
-     * @bodyParam tenant_id integer optional ID tenant. Example: 1
-     * @bodyParam paper string Ukuran kertas (a4, letter). Example: a4
+     * @bodyParam view string required Blade view name. Example: pdf.invoice
+     * @bodyParam data array Data passed to the view.
+     * @bodyParam filename string Filename (without extension). Example: INV-0001
+     * @bodyParam rel_type string Entity type (invoice, estimate, contract). Example: invoice
+     * @bodyParam rel_id integer Entity ID. Example: 10
+     * @bodyParam tenant_id integer optional Tenant ID. Example: 1
+     * @bodyParam paper string Paper size (a4, letter). Example: a4
      * @bodyParam orientation string portrait|landscape. Example: portrait
      *
      * @response {
@@ -69,12 +68,12 @@ class PdfController extends Controller
     }
 
     /**
-     * Render string HTML menjadi PDF (binary, tanpa simpan).
+     * Render an HTML string into a PDF (binary, without storing).
      *
      * @authenticated
      *
-     * @bodyParam html string required Konten HTML.
-     * @bodyParam paper string Ukuran kertas. Example: a4
+     * @bodyParam html string required HTML content.
+     * @bodyParam paper string Paper size. Example: a4
      * @bodyParam orientation string portrait|landscape. Example: portrait
      *
      * @response data: "string" (binary PDF)
@@ -93,14 +92,14 @@ class PdfController extends Controller
     }
 
     /**
-     * Bulk export banyak dokumen PDF menjadi satu ZIP (dijalankan via queue).
+     * Bulk-export multiple PDF documents into a single ZIP (run via the queue).
      *
      * @authenticated
      *
-     * @bodyParam documents array required Daftar dokumen.
-     * @bodyParam documents[].filename string Nama file per dokumen. Example: INV-0001
-     * @bodyParam documents[].html string required HTML dokumen. Example: <h1>Invoice</h1>
-     * @bodyParam prefix string Prefix nama ZIP. Example: invoices-2026
+     * @bodyParam documents array required List of documents.
+     * @bodyParam documents[].filename string Filename for each document. Example: INV-0001
+     * @bodyParam documents[].html string required Document HTML. Example: <h1>Invoice</h1>
+     * @bodyParam prefix string ZIP filename prefix. Example: invoices-2026
      *
      * @response {
      *   "data": { "job": "Spine\\Jobs\\PdfExportJob", "queued": true }

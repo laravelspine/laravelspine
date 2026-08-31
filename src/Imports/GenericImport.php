@@ -9,11 +9,9 @@ use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
 /**
- * GenericImport — import file Excel/CSV menjadi collection baris.
+ * GenericImport — imports an Excel/CSV file into a collection of rows.
  *
- * Baris pertama (heading) dipakai sebagai key asosiatif tiap baris.
- *
- * Diadopsi dari `import/` legacy CRM.
+ * The first row (heading) is used as the associative key for each row.
  *
  * @implements ToCollection
  */

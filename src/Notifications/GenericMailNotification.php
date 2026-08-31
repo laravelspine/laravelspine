@@ -9,9 +9,9 @@ use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\MailMessage;
 
 /**
- * GenericMailNotification — notifikasi email sederhana.
+ * GenericMailNotification — a simple email notification.
  *
- * Digunakan oleh MailService untuk kirim notifikasi email ke user.
+ * Used by MailService to send email notifications to users.
  */
 class GenericMailNotification extends Notification
 {

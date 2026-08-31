@@ -11,16 +11,14 @@ use Endroid\QrCode\Writer\PngWriter;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * QrCodeService — generator QR code.
+ * QrCodeService — QR code generator.
  *
- * Diadopsi dari `Endroid_qrcode.py` legacy CRM.
- * Mendukung output PNG (binary/base64), SVG, dan data URI.
- *
+ * Supports PNG (binary/base64), SVG, and data URI output.
  */
 class QrCodeService
 {
     /**
-     * Generate QR code menjadi binary PNG.
+     * Generate a QR code as binary PNG.
      *
      * @param  array{content: string, size?: int, margin?: int}  $payload
      */
@@ -38,7 +36,7 @@ class QrCodeService
     }
 
     /**
-     * Generate QR code, return data URI PNG (bisa langsung dipakai di <img src>).
+     * Generate a QR code and return a PNG data URI (usable directly in <img src>).
      *
      * @param  array{content: string, size?: int, margin?: int}  $payload
      */
@@ -48,7 +46,7 @@ class QrCodeService
     }
 
     /**
-     * Generate QR code, return base64 string.
+     * Generate a QR code and return a base64 string.
      *
      * @param  array{content: string, size?: int, margin?: int}  $payload
      */
@@ -58,7 +56,7 @@ class QrCodeService
     }
 
     /**
-     * Simpan QR PNG ke storage, return path.
+     * Store a QR PNG in storage and return its path.
      *
      * @param  array{content: string, filename?: string, dir?: string, size?: int, margin?: int}  $payload
      */
@@ -74,7 +72,7 @@ class QrCodeService
     }
 
     /**
-     * Konversi string level koreksi error (low/medium/quartile/high).
+     * Convert an error correction level string (low/medium/quartile/high).
      */
     private function errorCorrection(string $level): ErrorCorrectionLevel
     {

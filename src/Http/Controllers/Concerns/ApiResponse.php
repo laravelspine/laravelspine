@@ -5,13 +5,13 @@ namespace Spine\Http\Controllers\Concerns;
 use Illuminate\Http\JsonResponse;
 
 /**
- * Konvensi respons API Spine (kontrak konsisten untuk semua endpoint).
+ * Spine API response conventions (a consistent contract for all endpoints).
  *
- * Bentuk envelope:
+ * Envelope shape:
  *  - List/index  : { "data": [...], "meta": { "count", "per_page", "page" } }
  *  - Single      : { "data": {...} }
  *  - Created     : { "data": {...} } status 201
- *  - No content  : status 204 (kosong)
+ *  - No content  : status 204 (empty)
  *  - Error       : { "message": "...", "errors": { field: [...] } } (Laravel default 422)
  */
 trait ApiResponse

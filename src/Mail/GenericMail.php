@@ -11,10 +11,10 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
 /**
- * GenericMail — Mailable generik dari array payload.
+ * GenericMail — a generic Mailable built from an array payload.
  *
- * Dipakai untuk kirim email via queue (sesuai App_Email.php legacy CRM:
- * antrean email + retry). Payload berisi to/subject/view/data.
+ * Used to send emails through the queue (queued email + retry).
+ * The payload contains to/subject/view/data.
  */
 class GenericMail extends Mailable
 {

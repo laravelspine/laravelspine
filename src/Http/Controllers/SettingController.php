@@ -9,10 +9,10 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
- * API key-value settings (dari settings_helper.php legacy CRM).
+ * Key-value settings API.
  *
- * BUKAN CRUD klasik: key adalah identifier, bukan ID auto-increment.
- * Mendukung scope multi-tenant (tenant_id NULL = global).
+ * Not classic CRUD: the key is the identifier, not an auto-increment ID.
+ * Supports multi-tenant scope (tenant_id NULL = global).
  *
  * @group api/v1
      * @subgroup Settings
@@ -24,11 +24,11 @@ class SettingController extends Controller
     ) {}
 
     /**
-     * Ambil satu setting berdasarkan key.
+     * Get a setting by key.
      *
      * @authenticated
      *
-     * @urlParam key string required Kunci setting. Example: invoice_prefix
+     * @urlParam key string required Setting key. Example: invoice_prefix
      * @queryParam tenant_id integer optional Scope tenant. Null = global. Example: 1
      *
      * @response scenario=success {
@@ -36,7 +36,7 @@ class SettingController extends Controller
      *   "value": "INV-",
      *   "tenant_id": null
      * }
-     * @response status=404 scenario="tidak ditemukan" {
+     * @response status=404 scenario="not found" {
      *   "message": "Setting not found"
      * }
      */
@@ -59,12 +59,12 @@ class SettingController extends Controller
     }
 
     /**
-     * Simpan / perbarui setting (upsert by key).
+     * Create or update a setting (upsert by key).
      *
      * @authenticated
      *
-     * @urlParam key string required Kunci setting. Example: invoice_prefix
-     * @bodyParam value string required Nilai setting. Example: INV-
+     * @urlParam key string required Setting key. Example: invoice_prefix
+     * @bodyParam value string required Setting value. Example: INV-
      * @bodyParam tenant_id integer optional Scope tenant. Null = global. Example: 1
      *
      * @response scenario=success {
@@ -89,17 +89,17 @@ class SettingController extends Controller
     }
 
     /**
-     * Hapus setting berdasarkan key.
+     * Delete a setting by key.
      *
      * @authenticated
      *
-     * @urlParam key string required Kunci setting. Example: invoice_prefix
+     * @urlParam key string required Setting key. Example: invoice_prefix
      * @queryParam tenant_id integer optional Scope tenant. Null = global. Example: 1
      *
      * @response scenario=success {
      *   "message": "Setting deleted"
      * }
-     * @response status=404 scenario="tidak ditemukan" {
+     * @response status=404 scenario="not found" {
      *   "message": "Setting not found"
      * }
      */
@@ -118,11 +118,11 @@ class SettingController extends Controller
     }
 
     /**
-     * Ambil banyak setting sekaligus.
+     * Get multiple settings at once.
      *
      * @authenticated
      *
-     * @bodyParam keys array required Daftar key. Example: ["invoice_prefix","tax_rate"]
+     * @bodyParam keys array required List of keys. Example: ["invoice_prefix","tax_rate"]
      * @bodyParam tenant_id integer optional Scope tenant. Null = global. Example: 1
      *
      * @response scenario=success {

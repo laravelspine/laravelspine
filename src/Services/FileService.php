@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Spine\Services;
 
 /**
- * FileService dari files_helper.php legacy CRM — PART 1.
+ * FileService — file helpers.
  *
- * Fungsi yang diadopsi:
+ * Adopted functions:
  *   - bytesToSize → bytes_to_size
  *   - file_upload_max_size
  *   - parse_size
@@ -20,7 +20,7 @@ namespace Spine\Services;
 class FileService
 {
     /**
-     * Format bytes ke string human-readable (mis. "1.5 MB").
+     * Format bytes into a human-readable string (e.g. "1.5 MB").
      *
      * @param int $bytes
      * @param int $precision
@@ -42,7 +42,7 @@ class FileService
     }
 
     /**
-     * Dapatkan max upload size dari PHP config (dalam bytes).
+     * Get the max upload size from PHP config (in bytes).
      *
      * @return int
      */
@@ -58,7 +58,7 @@ class FileService
     }
 
     /**
-     * Parse ukuran string (mis. "2M", "512K") ke bytes.
+     * Parse a size string (e.g. "2M", "512K") into bytes.
      *
      * @param string $size
      * @return int
@@ -85,9 +85,9 @@ class FileService
     }
 
     /**
-     * Apakah file adalah gambar (berdasarkan ekstensi).
+     * Whether the file is an image (based on extension).
      *
-     * @param string $filename atau path
+     * @param string $filename filename or path
      * @return bool
      */
     public function is_image(string $filename): bool
@@ -97,10 +97,10 @@ class FileService
     }
 
     /**
-     * Dapatkan ekstensi file dari nama/file path.
+     * Get the file extension from a name/path.
      *
      * @param string $filename
-     * @return string lowercase tanpa titik
+     * @return string lowercase without the dot
      */
     public function get_file_extension(string $filename): string
     {
@@ -109,7 +109,7 @@ class FileService
     }
 
     /**
-     * Sanitize nama file: hilangkan karakter berbahaya, spasi → underscore.
+     * Sanitize a file name: remove dangerous characters, spaces → underscore.
      *
      * @param string $filename
      * @return string
@@ -124,10 +124,10 @@ class FileService
     }
 
     /**
-     * Generate nama file unik, menggunakan timestamp + random string.
+     * Generate a unique file name using a timestamp + random string.
      *
-     * @param string $originalName atau ekstensi
-     * @param string $prefix opsional
+     * @param string $originalName or extension
+     * @param string $prefix optional
      * @return string
      */
     public function unique_filename(string $originalName = '', string $prefix = ''): string
@@ -151,17 +151,18 @@ class FileService
     }
 
     /**
-     * Simpan uploaded file ke disk (Laravel Storage), path per-tenant.
+     * Store an uploaded file to disk (Laravel Storage), per-tenant path.
      *
-     * Pola Laravel standar + struktur mirip legacy (uploads/{rel_type}/{rel_id}/).
-     * File fisik di storage, metadata dicatat oleh caller (Attachment model).
+     * Standard Laravel pattern with an uploads/{rel_type}/{rel_id}/ directory
+     * structure. Physical files go to storage; metadata is recorded by the
+     * caller (Attachment model).
      *
      * @param \Illuminate\Http\UploadedFile $file
-     * @param string $relType  mis. 'invoice'
+     * @param string $relType  e.g. 'invoice'
      * @param int    $relId
      * @param int|null $tenantId
      * @param string $disk     'local' (private) | 'public'
-     * @return string path relatif hasil store()
+     * @return string relative path returned by store()
      */
     public function storeUpload(
         \Illuminate\Http\UploadedFile $file,
@@ -177,7 +178,7 @@ class FileService
     }
 
     /**
-     * Buat response download/inline untuk attachment.
+     * Build a download/inline response for an attachment.
      *
      * @param \Spine\Models\Attachment $attachment
      * @param bool $inline true=preview (image), false=force download

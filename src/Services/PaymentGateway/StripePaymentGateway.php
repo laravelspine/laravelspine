@@ -8,9 +8,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 /**
- * StripePaymentGateway — implementasi PaymentGatewayInterface untuk Stripe.
- *
- * Diadopsi dari `Stripe_core.php` legacy CRM.
+ * StripePaymentGateway — Stripe implementation of PaymentGatewayInterface.
  */
 class StripePaymentGateway implements PaymentGatewayInterface
 {

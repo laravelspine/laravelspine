@@ -8,12 +8,10 @@ use Spine\Services\SmsService;
 use Illuminate\Notifications\Notification;
 
 /**
- * SmsChannel — channel notifikasi Laravel untuk kirim SMS.
+ * SmsChannel — Laravel notification channel for sending SMS messages.
  *
- * Notifiable harus punya method `routeNotificationForSms()` yang mengembalikan
- * nomor telepon (string) atau array `['number' => ..., 'driver' => ...]`.
- *
- * Diadopsi dari `sms/` legacy CRM.
+ * The notifiable must implement a `routeNotificationForSms()` method that
+ * returns a phone number (string) or an array `['number' => ..., 'driver' => ...]`.
  */
 class SmsChannel
 {

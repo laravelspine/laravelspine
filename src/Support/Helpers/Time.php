@@ -7,15 +7,15 @@ namespace Spine\Support\Helpers;
 use Illuminate\Support\Carbon;
 
 /**
- * Helper waktu yang diadopsi dari func_helper.php legacy CRM.
+ * Time helper utilities.
  *
  */
 class Time
 {
     /**
-     * Convert detik ke format waktu manusia-baca (terjemahan bahasa Inggris).
+     * Convert seconds to a human-readable time format (English).
      *
-     * Contoh:
+     * Example:
      *   Time::seconds_to_time_format(3600)  → "1 hour"
      *   Time::seconds_to_time_format(90)    → "1 minute 30 seconds"
      *   Time::seconds_to_time_format(0)     → "0 seconds"
@@ -49,9 +49,9 @@ class Time
     }
 
     /**
-     * Convert jam ke detik.
+     * Convert hours to seconds.
      *
-     * Contoh: Time::hours_to_seconds_format(2) → 7200
+     * Example: Time::hours_to_seconds_format(2) → 7200
      */
     public static function hours_to_seconds_format(float|int $hours): int
     {
@@ -59,11 +59,11 @@ class Time
     }
 
     /**
-     * Format timestamp relatif (time ago) — "2 hours ago", "5 minutes ago".
+     * Format a relative timestamp (time ago) — "2 hours ago", "5 minutes ago".
      *
-     * Wrapper atas Carbon::diffForHumans().
+     * Wrapper around Carbon::diffForHumans().
      *
-     * Contoh: Time::time_ago('2026-08-27 10:00:00') → "2 hours ago"
+     * Example: Time::time_ago('2026-08-27 10:00:00') → "2 hours ago"
      */
     public static function time_ago(mixed $timestamp): string
     {
@@ -73,9 +73,9 @@ class Time
     }
 
     /**
-     * Check apakah timestamp sudah lewat (sudah "ago" dari sekarang).
+     * Check whether the timestamp is in the past (already "ago").
      *
-     * Menggunakan Carbon::isPast().
+     * Uses Carbon::isPast().
      */
     public static function isPast(mixed $timestamp): bool
     {
@@ -83,7 +83,7 @@ class Time
     }
 
     /**
-     * Check apakah timestamp masih di masa future.
+     * Check whether the timestamp is still in the future.
      */
     public static function isFuture(mixed $timestamp): bool
     {
@@ -91,9 +91,9 @@ class Time
     }
 
     /**
-     * Dapatkan selisih detik antara dua timestamp.
+     * Get the difference in seconds between two timestamps.
      *
-     * Contoh: Time::diffInSeconds('2026-08-27 12:00:00', '2026-08-27 10:00:00') → 7200
+     * Example: Time::diffInSeconds('2026-08-27 12:00:00', '2026-08-27 10:00:00') → 7200
      */
     public static function diffInSeconds(mixed $from, mixed $to): int
     {

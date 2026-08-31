@@ -6,8 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
- * Metadata file upload (mirip tblfiles legacy CRM).
- * File fisik disimpan via Laravel Storage; ini hanya metadata + pointer path.
+ * Metadata for file uploads.
+ * The physical file is stored via Laravel Storage; this only holds metadata and a path pointer.
  */
 class Attachment extends Model
 {
@@ -32,8 +32,8 @@ class Attachment extends Model
     ];
 
     /**
-     * Relasi polymorphic ke entity pembawa (Invoice, Client, ...).
-     * (Opsional; entity belum tentu pakai trait. Biarkan morphTo.)
+     * Polymorphic relation to the owning entity (Invoice, Client, ...).
+     * (Optional; the entity may not use the trait. Keep morphTo.)
      */
     public function relatable(): MorphTo
     {

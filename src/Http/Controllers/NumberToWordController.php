@@ -9,9 +9,9 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
- * API untuk konversi angka ke terbilang (Indonesian/Indian).
+ * API for converting numbers to words (Indonesian/Indian).
  *
- * Digunakan oleh frontend saat generate invoice PDF, dokumen keuangan, dll.
+ * Used by the frontend when generating invoice PDFs, financial documents, etc.
  *
  * @group api/v1
      * @subgroup Utilities
@@ -23,12 +23,12 @@ class NumberToWordController extends Controller
     ) {}
 
     /**
-     * Konversi angka ke terbilang Indonesian (format Rupiah).
+     * Convert a number to Indonesian words (Rupiah format).
      *
      * @authenticated
      *
-     * @bodyParam number numeric required Angka yang dikonversi. Example: 1234567
-     * @bodyParam currency string optional Suffix mata uang. Default: rupiah. Example: rupiah
+     * @bodyParam number numeric required The number to convert. Example: 1234567
+     * @bodyParam currency string optional Currency suffix. Default: rupiah. Example: rupiah
      *
      * @response scenario=success {
      *   "number": 1234567,
@@ -51,12 +51,12 @@ class NumberToWordController extends Controller
     }
 
     /**
-     * Konversi angka ke terbilang Indian format (lakh/crore).
+     * Convert a number to Indian words (lakh/crore format).
      *
      * @authenticated
      *
-     * @bodyParam number numeric required Angka yang dikonversi. Example: 1234567
-     * @bodyParam currency string optional Suffix mata uang. Default: (kosong). Example: INR
+     * @bodyParam number numeric required The number to convert. Example: 1234567
+     * @bodyParam currency string optional Currency suffix. Default: (empty). Example: INR
      *
      * @response scenario=success {
      *   "number": 1234567,

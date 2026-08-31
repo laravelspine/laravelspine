@@ -13,10 +13,9 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
- * API untuk manajemen modul (discover, status, enable/disable).
+ * API for module management (discover, status, enable/disable).
  *
- * Diadopsi dari `App_modules.php` legacy CRM.
- * Hanya super-admin yang boleh enable/disable modul.
+ * Only super-admins may enable/disable modules.
  *
  * @group api/v1
      * @subgroup Modules
@@ -28,7 +27,7 @@ class ModuleController extends Controller
     ) {}
 
     /**
-     * List semua modul dengan status.
+     * List all modules with their status.
      *
      * @authenticated
      *
@@ -44,7 +43,7 @@ class ModuleController extends Controller
     }
 
     /**
-     * List hanya modul yang aktif (enabled).
+     * List only enabled modules.
      *
      * @authenticated
      */
@@ -54,11 +53,11 @@ class ModuleController extends Controller
     }
 
     /**
-     * Detail modul by name/alias.
+     * Get module details by name/alias.
      *
      * @authenticated
      *
-     * @urlParam name string required Nama atau alias modul. Example: sales
+     * @urlParam name string required Module name or alias. Example: sales
      *
      * @response scenario=success {
      *   "name":"Sales","alias":"sales","enabled":true,"installed":true,
@@ -78,11 +77,11 @@ class ModuleController extends Controller
     }
 
     /**
-     * Aktifkan modul.
+     * Enable a module.
      *
      * @authenticated
      *
-     * @urlParam name string required Nama modul. Example: sales
+     * @urlParam name string required Module name. Example: sales
      *
      * @response scenario=success {"message":"Module 'sales' enabled","enabled":true}
      * @response status=404 scenario=not-found {"message":"Module not found"}
@@ -101,11 +100,11 @@ class ModuleController extends Controller
     }
 
     /**
-     * Nonaktifkan modul.
+     * Disable a module.
      *
      * @authenticated
      *
-     * @urlParam name string required Nama modul. Example: sales
+     * @urlParam name string required Module name. Example: sales
      *
      * @response scenario=success {"message":"Module 'sales' disabled","enabled":false}
      * @response status=404 scenario=not-found {"message":"Module not found"}
@@ -124,11 +123,11 @@ class ModuleController extends Controller
     }
 
     /**
-     * Cek status modul (enabled/installed).
+     * Check a module's status (enabled/installed).
      *
      * @authenticated
      *
-     * @urlParam name string required Nama modul. Example: sales
+     * @urlParam name string required Module name. Example: sales
      *
      * @response scenario=success {"name":"sales","enabled":true,"installed":true}
      * @response status=404 scenario=not-found {"message":"Module not found"}
@@ -149,22 +148,22 @@ class ModuleController extends Controller
     }
 
     /**
-     * Install modul baru dari upload zip.
+     * Install a new module from a zip upload.
      *
-     * Zip wajib berisi `module.json` (di root atau dalam satu folder
-     * top-level). Modul langsung di-enable dan migrasinya dijalankan.
-     * Diadopsi dari `App_module_installer.php` legacy CRM.
+     * The zip must contain `module.json` (at its root or inside a single
+     * top-level folder). The module is enabled immediately and its
+     * migrations are run.
      *
      * @authenticated
      *
-     * @bodyParam file file required File zip modul (maks 20MB).
+     * @bodyParam file file required Module zip file (max 20MB).
      *
      * @response status=200 scenario=success {
      *   "message": "Module 'Demo' installed",
      *   "data": {"name":"Demo","enabled":true}
      * }
      * @response status=422 scenario=invalid {
-     *   "message": "File zip modul tidak valid atau modul sudah terinstall"
+     *   "message": "Module zip file is invalid or the module is already installed"
      * }
      */
     public function install(Request $request): JsonResponse
@@ -177,7 +176,7 @@ class ModuleController extends Controller
 
         if (!$module) {
             return response()->json([
-                'message' => 'File zip modul tidak valid atau modul sudah terinstall',
+                'message' => 'Module zip file is invalid or the module is already installed',
             ], 422);
         }
 
@@ -190,12 +189,12 @@ class ModuleController extends Controller
     }
 
     /**
-     * Uninstall modul: nonaktifkan; hapus file hanya dengan ?purge=1.
+     * Uninstall a module: disables it; deletes its files only with ?purge=1.
      *
      * @authenticated
      *
-     * @urlParam name string required Nama modul. Example: demo
-     * @queryParam purge boolean Hapus direktori modul dari disk. Example: false
+     * @urlParam name string required Module name. Example: demo
+     * @queryParam purge boolean Delete the module directory from disk. Example: false
      *
      * @response scenario=success {"message":"Module 'demo' uninstalled","purge":false}
      * @response status=404 scenario=not-found {"message":"Module not found"}

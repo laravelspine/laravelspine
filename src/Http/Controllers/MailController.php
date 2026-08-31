@@ -9,9 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
- * API untuk pengiriman email dan notifikasi.
- *
- * Diadopsi dari `App_mailer.php` / `App_Email.php` legacy CRM.
+ * Email and notification sending API.
  *
  * @group api/v1
      * @subgroup Mail
@@ -23,14 +21,14 @@ class MailController extends Controller
     ) {}
 
     /**
-     * Kirim email menggunakan Mailable.
+     * Send an email using a Mailable.
      *
      * @authenticated
      *
-     * @bodyParam to string required Alamat email tujuan. Example: user@example.com
-     * @bodyParam subject string required Subjek email. Example: Invoice #123
-     * @bodyParam view string required Nama view Blade untuk template email. Example: emails.invoice
-     * @bodyParam data array<string, mixed> optional Data untuk template. Example: {"invoice_id": 123}
+     * @bodyParam to string required Recipient email address. Example: user@example.com
+     * @bodyParam subject string required Email subject. Example: Invoice #123
+     * @bodyParam view string required Blade view name for the email template. Example: emails.invoice
+     * @bodyParam data array<string, mixed> optional Data for the template. Example: {"invoice_id": 123}
      *
      * @response scenario=success {"message":"Email sent","success":true}
      */
@@ -61,14 +59,14 @@ class MailController extends Controller
     }
 
     /**
-     * Kirim notifikasi email ke user.
+     * Send an email notification to a user.
      *
      * @authenticated
      *
-     * @bodyParam user_id int required ID user penerima. Example: 1
-     * @bodyParam subject string required Subjek notifikasi. Example: Task assigned
-     * @bodyParam body string required Isi notifikasi. Example: Anda mendapat task baru
-     * @bodyParam action_url string opsional URL aksi. Example: https://app.example.com/tasks/1
+     * @bodyParam user_id int required Recipient user ID. Example: 1
+     * @bodyParam subject string required Notification subject. Example: Task assigned
+     * @bodyParam body string required Notification body. Example: You have a new task
+     * @bodyParam action_url string optional Action URL. Example: https://app.example.com/tasks/1
      *
      * @response scenario=success {"message":"Notification sent","success":true}
      */
@@ -95,14 +93,14 @@ class MailController extends Controller
     }
 
     /**
-     * Kirim notifikasi email ke banyak user.
+     * Send an email notification to many users.
      *
      * @authenticated
      *
-     * @bodyParam user_ids array<int> required Daftar ID user penerima. Example: [1,2,3]
-     * @bodyParam subject string required Subjek notifikasi. Example: Pengumuman penting
-     * @bodyParam body string required Isi notifikasi.
-     * @bodyParam action_url string opsional URL aksi.
+     * @bodyParam user_ids array<int> required List of recipient user IDs. Example: [1,2,3]
+     * @bodyParam subject string required Notification subject. Example: Important announcement
+     * @bodyParam body string required Notification body.
+     * @bodyParam action_url string optional Action URL.
      *
      * @response scenario=success {"message":"Notification sent","success":true,"recipients":3}
      */
@@ -131,11 +129,11 @@ class MailController extends Controller
     }
 
     /**
-     * Antrean email: retry failed mail job.
+     * Mail queue: retry failed mail jobs.
      *
      * @authenticated
      *
-     * @queryParam queue string Nama queue (opsional). Example: emails
+     * @queryParam queue string Queue name (optional). Example: emails
      *
      * @response scenario=success {
      *   "message": "Retried 2 failed job(s)", "success": true, "retried": 2
@@ -155,12 +153,12 @@ class MailController extends Controller
     }
 
     /**
-     * Antrean email: bersihkan failed job lama.
+     * Mail queue: clean up old failed jobs.
      *
      * @authenticated
      *
-     * @queryParam queue string Nama queue (opsional). Example: emails
-     * @queryParam days integer Umur maksimal failed job (hari). Example: 7
+     * @queryParam queue string Queue name (optional). Example: emails
+     * @queryParam days integer Max age of failed jobs in days. Example: 7
      *
      * @response scenario=success {
      *   "message": "Cleaned 5 old failed job(s)", "success": true, "cleaned": 5
@@ -181,11 +179,11 @@ class MailController extends Controller
     }
 
     /**
-     * Antrean email: jumlah job menunggu.
+     * Mail queue: number of pending jobs.
      *
      * @authenticated
      *
-     * @queryParam queue string Nama queue (opsional). Example: emails
+     * @queryParam queue string Queue name (optional). Example: emails
      *
      * @response scenario=success {
      *   "data": { "pending": 3 }

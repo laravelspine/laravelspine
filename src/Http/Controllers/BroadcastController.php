@@ -7,9 +7,9 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
- * Realtime (pengganti App_pusher legacy) — Laravel Broadcasting + Reverb.
- * Klien: laravel-echo + pusher-js diarahkan ke server Reverb; auth channel
- * via `POST /api/v1/broadcasting/auth` (token Sanctum).
+ * Realtime — Laravel Broadcasting + Reverb.
+ * Clients: laravel-echo + pusher-js pointed at the Reverb server; channel auth
+ * via `POST /api/v1/broadcasting/auth` (Sanctum token).
  *
  * @group api/v1
  * @subgroup Broadcasting
@@ -17,20 +17,20 @@ use Illuminate\Http\Request;
 class BroadcastController extends Controller
 {
     /**
-     * Kirim notifikasi realtime ke user yang sedang login.
+     * Send a realtime notification to the currently logged-in user.
      *
-     * Memicu event `notification.sent` di private channel `user.{id}`.
-     * Frontend (Next.js) mendengarkan channel tersebut lalu menampilkan
-     * desktop notification via browser Notification API.
+     * Triggers the `notification.sent` event on the private channel `user.{id}`.
+     * The frontend (Next.js) listens to that channel and displays a
+     * desktop notification via the browser Notification API.
      *
      * @authenticated
      *
-     * @bodyParam title string optional Judul notifikasi. Example: Pesan baru
-     * @bodyParam message string optional Isi notifikasi. Example: Anda menerima pesan baru
-     * @bodyParam type string optional Tipe notifikasi: info|success|warning|error. Example: success
-     * @bodyParam data array optional Data tambahan bebas (JSON object).
+     * @bodyParam title string optional Notification title. Example: New message
+     * @bodyParam message string optional Notification body. Example: You have a new message
+     * @bodyParam type string optional Notification type: info|success|warning|error. Example: success
+     * @bodyParam data array optional Extra data (JSON object).
      *
-     * @response 200 scenario="terkirim" {"success": true, "event": "notification.sent", "channel": "user.1", "payload": {"title": "Pesan baru", "message": "Anda menerima pesan baru", "type": "success", "data": [], "sent_at": "2026-08-29T00:00:00+07:00"}}
+     * @response 200 scenario="sent" {"success": true, "event": "notification.sent", "channel": "user.1", "payload": {"title": "New message", "message": "You have a new message", "type": "success", "data": [], "sent_at": "2026-08-29T00:00:00+07:00"}}
      * @response 422 {"message": "The given data was invalid.", "errors": {"type": ["The selected type is invalid."]}}
      */
     public function sendTest(Request $request): JsonResponse
@@ -62,10 +62,10 @@ class BroadcastController extends Controller
     }
 
     /**
-     * Konfigurasi koneksi realtime untuk frontend.
+     * Realtime connection configuration for the frontend.
      *
-     * Mengembalikan parameter publik (tanpa secret) agar klien bisa
-     * menghubungkan laravel-echo ke server Reverb.
+     * Returns public parameters (no secrets) so clients can
+     * connect laravel-echo to the Reverb server.
      *
      * @authenticated
      *

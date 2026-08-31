@@ -8,20 +8,16 @@ use Spine\Exceptions\RelationTypeNotRegisteredException;
 use Closure;
 
 /**
- * RelationService — inti resolver relasi antar entity.
+ * RelationService — the core resolver for relations between entities.
  *
- * Diadaptasi dari relation_helper.php legacy CRM, TAPI hanya bagian inti:
- * core TIDAK tahu domain spesifik (customer/project/lead/...).
- *
- * Module (mis. Sales) yang mendefinisikan resolver per-tipe via HOOK:
+ * The core does not know specific domains (customer/project/lead/...).
+ * Modules (e.g. Sales) define per-type resolvers via a hook:
  *   RelationService::registerResolver('customer', fn (int $id) => [...]);
  *
- * Core hanya:
- *   - menyimpan mapping type => resolver
- *   - memvalidasi bahwa type terdaftar (opt-in, cegah leakage)
- *   - memanggil resolver saat di-request
- *
- *      docs/porting-helper-implementasi.md (RelationService, via hook module)
+ * The core only:
+ *   - stores the type => resolver mapping
+ *   - validates that the type is registered (opt-in, prevents leakage)
+ *   - calls the resolver when requested
  */
 class RelationService
 {
@@ -31,10 +27,10 @@ class RelationService
     private array $resolvers = [];
 
     /**
-     * Daftarkan resolver untuk tipe relasi tertentu.
-     * Dipanggil oleh module melalui hook (ServiceProvider::boot).
+     * Register a resolver for a given relation type.
+     * Called by modules through a hook (ServiceProvider::boot).
      *
-     * @param string $type  mis. 'customer', 'project', 'lead'
+     * @param string $type  e.g. 'customer', 'project', 'lead'
      * @param Closure(int $id): array<string, mixed> $resolver
      */
     public function registerResolver(string $type, Closure $resolver): void
@@ -43,7 +39,7 @@ class RelationService
     }
 
     /**
-     * List tipe relasi yang terdaftar (untuk introspeksi/UI).
+     * List registered relation types (for introspection/UI).
      *
      * @return array<int, string>
      */
@@ -53,7 +49,7 @@ class RelationService
     }
 
     /**
-     * Apakah tipe relasi terdaftar?
+     * Whether the relation type is registered.
      */
     public function isRegistered(string $type): bool
     {
@@ -61,12 +57,12 @@ class RelationService
     }
 
     /**
-     * Resolve entity by type + id.
+     * Resolve an entity by type + id.
      *
      * @param string $type
      * @param int $id
-     * @return array<string, mixed>  data relasi (mis. ['id'=>, 'name'=>, 'type'=>])
-     * @throws RelationTypeNotRegisteredException jika type tidak terdaftar
+     * @return array<string, mixed>  relation data (e.g. ['id'=>, 'name'=>, 'type'=>])
+     * @throws RelationTypeNotRegisteredException if the type is not registered
      */
     public function resolve(string $type, int $id): array
     {

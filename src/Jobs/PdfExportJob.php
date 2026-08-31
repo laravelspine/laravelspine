@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Cache;
  * Heavy work must not run inside the HTTP request. The client polls for
  * the result path after the job finishes.
  *
- * Adopted from the legacy `App_bulk_pdf_export` bulk-export helper.
+ * Adopted from the bulk-export helper pattern.
  */
 class PdfExportJob implements ShouldQueue
 {

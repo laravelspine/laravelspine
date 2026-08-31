@@ -10,19 +10,19 @@ use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * API custom meta (polymorphic) — dari user_meta_helper.php legacy CRM.
+ * Custom meta API (polymorphic).
  *
- * Meta adalah key-value yang menempel ke entity mana pun (User, Invoice, ...)
- * via trait HasMetaData (morphMany ke CustomMeta).
+ * Meta is key-value data attached to any entity (User, Invoice, ...) via the
+ * HasMetaData trait (morphMany to CustomMeta).
  *
- * Karena polymorphic, endpoint dibentuk generik:
- *   GET    /api/meta/{type}/{id}          -> semua meta entity
- *   GET    /api/meta/{type}/{id}/{key}    -> satu meta
- *   PUT    /api/meta/{type}/{id}/{key}    -> set/update satu meta
+ * Because it is polymorphic, the endpoints are generic:
+ *   GET    /api/meta/{type}/{id}          -> all meta for an entity
+ *   GET    /api/meta/{type}/{id}/{key}    -> one meta value
+ *   PUT    /api/meta/{type}/{id}/{key}    -> set/update one meta value
  *   POST   /api/meta/{type}/{id}          -> bulk set (replace)
- *   DELETE /api/meta/{type}/{id}/{key}    -> hapus satu meta
+ *   DELETE /api/meta/{type}/{id}/{key}    -> delete one meta value
  *
- * {type} adalah short name class yang di-allowlist (aman, bukan arbitrary FQCN).
+ * {type} is a short allowlisted class name (safe, not an arbitrary FQCN).
  *
  * @group api/v1
      * @subgroup Custom Meta
@@ -30,8 +30,8 @@ use Illuminate\Database\Eloquent\Model;
 class MetaController extends Controller
 {
     /**
-     * Map short type -> FQCN yang diizinkan (cegah arbitrary class).
-     * 'user' TIDAK di-hardcode — di-resolve dari config auth (app-specific).
+     * Map of allowed short type -> FQCN (prevents arbitrary classes).
+     * 'user' is NOT hardcoded — it is resolved from the auth config (app-specific).
      *
      * @var array<string,string>
      */
@@ -48,7 +48,7 @@ class MetaController extends Controller
             return null;
         }
 
-        // Pastikan entity pakai trait HasMetaData
+        // Ensure the entity uses the HasMetaData trait
         if (!method_exists($fqcn, 'meta')) {
             return null;
         }
@@ -57,7 +57,7 @@ class MetaController extends Controller
     }
 
     /**
-     * Ambil semua meta entity.
+     * Get all meta for an entity.
      *
      * @authenticated
      *
@@ -80,7 +80,7 @@ class MetaController extends Controller
     }
 
     /**
-     * Ambil satu meta by key.
+     * Get a single meta value by key.
      *
      * @authenticated
      *
@@ -91,7 +91,7 @@ class MetaController extends Controller
      * @response scenario=success {
      *   "key": "theme", "value": "dark"
      * }
-     * @response status=404 scenario="tidak ditemukan" {
+     * @response status=404 scenario="not found" {
      *   "message": "Meta not found"
      * }
      */
@@ -114,14 +114,14 @@ class MetaController extends Controller
     }
 
     /**
-     * Set/update satu meta by key.
+     * Set or update a single meta value by key.
      *
      * @authenticated
      *
      * @urlParam type string required Short entity type. Example: user
      * @urlParam id integer required Entity id. Example: 1
      * @urlParam key string required Meta key. Example: theme
-     * @bodyParam value mixed required Nilai meta. Example: dark
+     * @bodyParam value mixed required Meta value. Example: dark
      *
      * @response scenario=success {
      *   "key": "theme", "value": "dark"
@@ -145,7 +145,7 @@ class MetaController extends Controller
     }
 
     /**
-     * Bulk set meta (replace) untuk entity.
+     * Bulk set meta (replace) for an entity.
      *
      * @authenticated
      *
@@ -172,7 +172,7 @@ class MetaController extends Controller
     }
 
     /**
-     * Hapus satu meta by key.
+     * Delete a single meta value by key.
      *
      * @authenticated
      *
@@ -183,7 +183,7 @@ class MetaController extends Controller
      * @response scenario=success {
      *   "message": "Meta deleted"
      * }
-     * @response status=404 scenario="tidak ditemukan" {
+     * @response status=404 scenario="not found" {
      *   "message": "Meta not found"
      * }
      */
