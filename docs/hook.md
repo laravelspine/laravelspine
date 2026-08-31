@@ -20,11 +20,14 @@ is added** (see [Adding a new hook](#adding-a-new-hook)).
 | `Spine\Events\NotificationSent` | A realtime notification is broadcast to a user (Reverb) | `BroadcastController` | `int $userId`, `string $title`, `string $message`, `string $type`, `array $data` |
 | `Spine\Events\FileUploading` | Before a file is stored; listeners may **reject** the upload by throwing | `FileService::storeUpload()` | `UploadedFile $file`, `string $relType`, `int $relId`, `?int $tenantId`, `string $disk` |
 | `Spine\Events\FileUploaded` | After a file is stored | `FileService::storeUpload()` | `string $path`, `string $relType`, `int $relId`, `?int $tenantId`, `string $disk` |
+| `Spine\Events\FileDeleting` | Before an attachment is deleted; listeners may **reject** the removal by throwing | `FileService::deleteUpload()` | `Attachment $attachment` |
+| `Spine\Events\FileDeleted` | After an attachment is deleted (file off disk, row gone) | `FileService::deleteUpload()` | `Attachment $attachment` |
 | `Spine\Events\PdfCreating` | Before a PDF is rendered; `$payload` is **mutable** (PDF data filters) — throw to abort | `PdfService::fromHtml()` / `fromView()` | `array $payload` (mutable: html/view/data/paper/orientation) |
 | `Spine\Events\PdfCreated` | After a PDF is rendered | `PdfService::fromHtml()` / `fromView()` | `string $binary`, `array $payload` |
 
-> Note: `FileUploading` is a veto point — throw `ValidationException` inside a
-> listener to abort the upload before it reaches storage.
+> Note: `FileUploading` and `FileDeleting` are veto points — throw
+> `ValidationException` inside a listener to abort the operation before the
+> file is touched.
 
 ## Listening to events
 

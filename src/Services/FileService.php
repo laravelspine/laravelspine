@@ -184,6 +184,23 @@ class FileService
     }
 
     /**
+     * Delete an attachment: dispatch FileDeleting (veto point), remove the
+     * physical file, delete the metadata row, then dispatch FileDeleted.
+     *
+     * @param \Spine\Models\Attachment $attachment
+     * @return void
+     */
+    public function deleteUpload(\Spine\Models\Attachment $attachment): void
+    {
+        \Spine\Events\FileDeleting::dispatch($attachment);
+
+        \Illuminate\Support\Facades\Storage::disk($attachment->disk)->delete($attachment->path);
+        $attachment->delete();
+
+        \Spine\Events\FileDeleted::dispatch($attachment);
+    }
+
+    /**
      * Build a download/inline response for an attachment.
      *
      * @param \Spine\Models\Attachment $attachment

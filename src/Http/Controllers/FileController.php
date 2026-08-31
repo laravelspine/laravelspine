@@ -161,8 +161,7 @@ class FileController extends Controller
             return response()->json(['message' => 'Attachment not found'], 404);
         }
 
-        \Illuminate\Support\Facades\Storage::disk($attachment->disk)->delete($attachment->path);
-        $attachment->delete();
+        $this->file->deleteUpload($attachment);
 
         return response()->json(['message' => 'Attachment deleted']);
     }
