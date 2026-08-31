@@ -167,6 +167,18 @@ echo 'notify=' . var_export(\$ok, true) . '|many=' . var_export(\$n, true);
 echo "run: $R"
 echo "$R" | grep -q "^notify=true|many=1" || { echo "FAIL: auth-model"; FAIL=1; }
 
+echo "== auth: login/me/logout via HTTP (Sanctum) =="
+BASE="${BASE_URL:-http://spine.lan}"
+R=$(curl -s -X POST "$BASE/api/v1/auth/login" -H "Content-Type: application/json" -H "Accept: application/json" -d '{"email":"demo@spine.test","password":"password"}' 2>/dev/null)
+TOKEN=$(echo "$R" | grep -o '"token":"[^"]*"' | cut -d'"' -f4)
+if [ -z "$TOKEN" ]; then echo "FAIL: login (${R:0:80})"; FAIL=1; else
+  ME=$(curl -s "$BASE/api/v1/auth/me" -H "Authorization: Bearer $TOKEN" -H "Accept: application/json")
+  echo "$ME" | grep -q '"email":"demo@spine.test"' || { echo "FAIL: me ($ME)"; FAIL=1; }
+  LOGOUT=$(curl -s -X POST "$BASE/api/v1/auth/logout" -H "Authorization: Bearer $TOKEN" -H "Accept: application/json")
+  echo "$LOGOUT" | grep -q '"message":"Logged out"' || { echo "FAIL: logout ($LOGOUT)"; FAIL=1; }
+  echo "auth OK"
+fi
+
 echo "== cleanup: storage test =="
 "$PHP" artisan tinker --execute="
 \Illuminate\Support\Facades\Storage::disk('local')->deleteDirectory('tenants/global/verify');

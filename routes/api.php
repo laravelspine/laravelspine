@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Spine\Http\Controllers\ActivityLogController;
+use Spine\Http\Controllers\AuthController;
 use Spine\Http\Controllers\BroadcastController;
 use Spine\Http\Controllers\ExcelController;
 use Spine\Http\Controllers\FileController;
@@ -21,9 +22,18 @@ use Spine\Http\Controllers\TagController;
 
 // Seluruh API infrastruktur di-versi-kan (tanpa kecuali).
 // v1 = kontrak stabil pertama; breaking change berikutnya → v2, dst.
+// Login/register publik; sisanya butuh Sanctum token.
+Route::prefix('v1')->group(function () {
+    Route::post('/auth/login', [AuthController::class, 'login']);
+    Route::post('/auth/register', [AuthController::class, 'register']);
+});
+
 Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 
-    // Settings (key-value API, bukan CRUD klasik)
+    // Auth (terautentikasi)
+    Route::post('/auth/logout', [AuthController::class, 'logout']);
+    Route::get('/auth/me', [AuthController::class, 'me']);
+
     Route::get('/settings/{key}', [SettingController::class, 'show']);
     Route::put('/settings/{key}', [SettingController::class, 'upsert']);
     Route::delete('/settings/{key}', [SettingController::class, 'destroy']);
