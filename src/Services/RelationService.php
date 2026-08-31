@@ -72,6 +72,13 @@ class RelationService
             throw new RelationTypeNotRegisteredException($type);
         }
 
-        return ($this->resolvers[$type])($id);
+        $data = ($this->resolvers[$type])($id);
+
+        $payload = ['type' => $type, 'id' => $id, 'data' => $data];
+        $resolving = new \Spine\Events\RelationResolving($payload);
+        event($resolving);
+        $payload = $resolving->payload;
+
+        return $payload['data'];
     }
 }

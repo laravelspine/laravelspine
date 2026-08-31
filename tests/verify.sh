@@ -124,6 +124,22 @@ echo 'fmt=' . \$fmt . '|sql=' . \$sql . '|sqldt=' . \$sqldt . '|mutasi=' . \$mut
 echo "run: $R"
 echo "$R" | grep -q "^fmt=31/08/2026|sql=2026-08-31|sqldt=2026-08-31 14:30:00|mutasi=DIUBAH|events=fmt" || { echo "FAIL: date"; FAIL=1; }
 
+echo "== hook: RelationResolving (relation data filters) =="
+R=$("$PHP" artisan tinker --execute="
+use Spine\Services\RelationService; use Spine\Events\RelationResolving;
+\$rs = app(RelationService::class);
+\$rs->registerResolver('verify', fn(\$id) => ['id'=>\$id, 'name'=>'Asli']);
+\$log=[];
+Event::listen(RelationResolving::class, function(\$e) use (&\$log) {
+    \$log[]='mutated';
+    \$e->payload['data']['name']='Diubah';
+});
+\$res = \$rs->resolve('verify', 1);
+echo 'name=' . \$res['name'] . '|events=' . implode(',',\$log);
+" 2>&1 | grep -E "^name=" | tail -1)
+echo "run: $R"
+echo "$R" | grep -q "^name=Diubah|events=mutated" || { echo "FAIL: relation"; FAIL=1; }
+
 echo "== cleanup: storage test =="
 "$PHP" artisan tinker --execute="
 \Illuminate\Support\Facades\Storage::disk('local')->deleteDirectory('tenants/global/verify');

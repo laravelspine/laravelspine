@@ -21,6 +21,7 @@ is added** (see [Adding a new hook](#adding-a-new-hook)).
 | `Spine\Events\NotificationCreating` | Before a notification is broadcast; `$payload` is **mutable** (notification_data filter) — throw to abort | `BroadcastController::sendTest()` | `array $payload` (mutable: userId/title/message/type/data) |
 | `Spine\Events\MailSending` | Before an email is sent; `$payload` is **mutable** (email_template_parsed filter) — throw to abort | `MailService::send()` | `array $payload` (mutable: to/subject/view/data/queue) |
 | `Spine\Events\DateFormatting` | While a date/datetime is formatted; `$payload` is **mutable** (date-format filters) | `DateService::format()` / `formatDateTime()` / `toSql()` | `array $payload` (mutable: format/formatted/value/sql) |
+| `Spine\Events\RelationResolving` | While a relation is resolved; `$payload` is **mutable** (relation data filters) — throw to abort | `RelationService::resolve()` | `array $payload` (mutable: type/id/data) |
 | `Spine\Events\FileUploading` | Before a file is stored; listeners may **reject** the upload by throwing | `FileService::storeUpload()` | `UploadedFile $file`, `string $relType`, `int $relId`, `?int $tenantId`, `string $disk` |
 | `Spine\Events\FileUploaded` | After a file is stored | `FileService::storeUpload()` | `string $path`, `string $relType`, `int $relId`, `?int $tenantId`, `string $disk` |
 | `Spine\Events\FileDeleting` | Before an attachment is deleted; listeners may **reject** the removal by throwing | `FileService::deleteUpload()` | `Attachment $attachment` |
