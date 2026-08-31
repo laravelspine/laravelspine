@@ -107,6 +107,23 @@ echo '|veto=' . \$veto;
 echo "run: $R"
 echo "$R" | grep -q "^mutasi=OK|send=true|veto=VETOED" || { echo "FAIL: mail"; FAIL=1; }
 
+echo "== hook: DateFormatting (date-format filters) =="
+R=$("$PHP" artisan tinker --execute="
+use Spine\Services\DateService; use Spine\Events\DateFormatting;
+\$d = app(DateService::class);
+\$fmt = \$d->format('2026-08-31');
+\$sql = \$d->toSql('31/08/2026');
+\$sqldt = \$d->toSql('31/08/2026 14:30', true);
+\$log=[];
+Event::listen(DateFormatting::class, function(\$e) use (&\$log) {
+    if (isset(\$e->payload['formatted'])) { \$log[]='fmt'; \$e->payload['formatted']='DIUBAH'; }
+});
+\$mutasi = \$d->format('2026-08-31');
+echo 'fmt=' . \$fmt . '|sql=' . \$sql . '|sqldt=' . \$sqldt . '|mutasi=' . \$mutasi . '|events=' . implode(',',\$log);
+" 2>&1 | grep -E "^fmt=" | tail -1)
+echo "run: $R"
+echo "$R" | grep -q "^fmt=31/08/2026|sql=2026-08-31|sqldt=2026-08-31 14:30:00|mutasi=DIUBAH|events=fmt" || { echo "FAIL: date"; FAIL=1; }
+
 echo "== cleanup: storage test =="
 "$PHP" artisan tinker --execute="
 \Illuminate\Support\Facades\Storage::disk('local')->deleteDirectory('tenants/global/verify');
