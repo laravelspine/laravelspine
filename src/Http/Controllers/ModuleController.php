@@ -77,6 +77,43 @@ class ModuleController extends Controller
     }
 
     /**
+     * Module manifest — kontrak frontend (menu + widgets).
+     *
+     * Baca manifest.php dari folder modul; fallback ke struktur kosong
+     * kalau modul belum menyediakan manifest. Dipakai nextjs-spine untuk
+     * render Sidebar & Dashboard tanpa hardcode per modul.
+     *
+     * @authenticated
+     *
+     * @urlParam name string required Module name. Example: sample
+     *
+     * @response scenario=success {
+     *   "menu": [{"slug":"sample","label":"Sample","icon":"📦","href":"/sample","position":90}],
+     *   "widgets": [{"id":"sample-items","area":"right-4","title":"Sample Items","api":"/api/v1/sample"}]
+     * }
+     * @response status=404 scenario=not-found {"message":"Module not found"}
+     */
+    public function manifest(string $name): JsonResponse
+    {
+        $module = $this->modules->find($name);
+
+        if (!$module) {
+            return response()->json(['message' => 'Module not found'], 404);
+        }
+
+        $manifestFile = $module->getPath() . '/manifest.php';
+        $manifest = is_file($manifestFile) ? require $manifestFile : [];
+
+        return response()->json([
+            'name'    => $module->getName(),
+            'alias'   => $module->getAlias(),
+            'enabled' => $module->isEnabled(),
+            'menu'    => $manifest['menu'] ?? [],
+            'widgets' => $manifest['widgets'] ?? [],
+        ]);
+    }
+
+    /**
      * Enable a module.
      *
      * @authenticated
