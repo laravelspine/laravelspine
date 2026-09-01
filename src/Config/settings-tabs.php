@@ -230,4 +230,49 @@ return [
             ],
         ],
     ],
+    [
+        'slug'     => 'pdf',
+        'label'    => 'PDF',
+        'icon'     => '📄',
+        'position' => 30,
+        'fields'   => [
+            [
+                'key'     => 'pdf_font',
+                'label'   => 'PDF Font',
+                'type'    => 'select',
+                'options' => [
+                    ['value' => 'DejaVu Sans', 'label' => 'DejaVu Sans'],
+                    ['value' => 'DejaVu Sans Mono', 'label' => 'DejaVu Sans Mono'],
+                    ['value' => 'DejaVu Serif', 'label' => 'DejaVu Serif'],
+                    ['value' => 'Helvetica', 'label' => 'Helvetica'],
+                    ['value' => 'Times', 'label' => 'Times'],
+                ],
+                'default' => 'DejaVu Sans',
+            ],
+            [
+                'key'     => 'pdf_font_size',
+                'label'   => 'Font Size',
+                'type'    => 'number',
+                'default' => '10',
+            ],
+            [
+                'key'     => 'pdf_logo_width',
+                'label'   => 'Logo Width',
+                'type'    => 'number',
+                'default' => '120',
+            ],
+            [
+                'key'     => 'pdf_table_heading_color',
+                'label'   => 'Table Heading Color',
+                'type'    => 'text',
+                'default' => '#252b39',
+            ],
+            [
+                'key'     => 'pdf_table_heading_text_color',
+                'label'   => 'Table Heading Text Color',
+                'type'    => 'text',
+                'default' => '#ffffff',
+            ],
+        ],
+    ],
 ];
