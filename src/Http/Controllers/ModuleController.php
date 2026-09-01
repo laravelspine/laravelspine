@@ -132,6 +132,7 @@ class ModuleController extends Controller
     {
         $menu = [];
         $widgets = [];
+        $detailTabs = [];
 
         foreach ($this->moduleRepository->allEnabled() as $module) {
             $manifestFile = $module->getPath() . '/manifest.php';
@@ -140,6 +141,7 @@ class ModuleController extends Controller
             }
 
             $manifest = require $manifestFile;
+            $lower = strtolower($module->getName());
 
             foreach ($manifest['menu'] ?? [] as $item) {
                 $item['module'] = $module->getName();
@@ -150,12 +152,20 @@ class ModuleController extends Controller
                 $widget['module'] = $module->getName();
                 $widgets[] = $widget;
             }
+
+            if (! empty($manifest['detail_tabs'] ?? [])) {
+                $detailTabs[$lower] = $manifest['detail_tabs'];
+            }
         }
 
         // Urutkan menu by position (padanan App_menu position).
         usort($menu, fn ($a, $b) => ($a['position'] ?? 999) <=> ($b['position'] ?? 999));
 
-        return response()->json(['menu' => $menu, 'widgets' => $widgets]);
+        return response()->json([
+            'menu' => $menu,
+            'widgets' => $widgets,
+            'detail_tabs' => $detailTabs,
+        ]);
     }
 
     /**
