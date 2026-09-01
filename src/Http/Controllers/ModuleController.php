@@ -23,7 +23,8 @@ use Illuminate\Http\Request;
 class ModuleController extends Controller
 {
     public function __construct(
-        private ModuleService $modules
+        private ModuleService $modules,
+        private readonly \Nwidart\Modules\Contracts\RepositoryInterface $moduleRepository
     ) {}
 
     /**
@@ -132,7 +133,7 @@ class ModuleController extends Controller
         $menu = [];
         $widgets = [];
 
-        foreach ($this->modules->allEnabled() as $module) {
+        foreach ($this->moduleRepository->allEnabled() as $module) {
             $manifestFile = $module->getPath() . '/manifest.php';
             if (! is_file($manifestFile)) {
                 continue;
