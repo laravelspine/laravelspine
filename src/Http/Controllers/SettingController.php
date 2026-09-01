@@ -42,7 +42,8 @@ class SettingController extends Controller
      */
     public function schema(): JsonResponse
     {
-        $tabs = [];
+        // Tab core (Spine) — settings-tabs.php; lalu tab dari manifest modul aktif.
+        $tabs = require __DIR__ . '/../../Config/settings-tabs.php';
 
         foreach ($this->modules->allEnabled() as $module) {
             $manifestFile = $module->getPath() . '/manifest.php';
