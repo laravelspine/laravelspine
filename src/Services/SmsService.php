@@ -22,9 +22,30 @@ class SmsService
      */
     private array $drivers = [];
 
-    public function __construct()
+    public function __construct(private readonly SettingService $settings)
     {
+        $this->applySettingsOverrides();
         $this->registerDrivers();
+    }
+
+    /**
+     * Override config('sms.*') with DB settings — the SMS tab writes
+     * sms_driver / sms_twilio_* keys, and this bridges them into the
+     * driver registry. Absent settings fall back to config (sms.php).
+     */
+    private function applySettingsOverrides(): void
+    {
+        $default = $this->settings->get('sms_driver', null);
+        if (is_string($default) && $default !== '') {
+            Config::set('sms.default', $default);
+        }
+
+        foreach (['account_sid', 'auth_token', 'from'] as $field) {
+            $value = $this->settings->get("sms_twilio_{$field}", null);
+            if (is_string($value)) {
+                Config::set("sms.drivers.twilio.{$field}", $value);
+            }
+        }
     }
 
     private function registerDrivers(): void

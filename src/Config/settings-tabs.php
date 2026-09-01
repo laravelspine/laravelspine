@@ -313,4 +313,37 @@ return [
             ],
         ],
     ],
+    [
+        'slug'     => 'sms',
+        'label'    => 'SMS',
+        'icon'     => '📱',
+        'position' => 50,
+        'fields'   => [
+            [
+                'key'     => 'sms_driver',
+                'label'   => 'SMS Driver',
+                'type'    => 'select',
+                'options' => [
+                    ['value' => 'log', 'label' => 'Log (dev)'],
+                    ['value' => 'twilio', 'label' => 'Twilio'],
+                ],
+                'default' => 'log',
+            ],
+            [
+                'key'     => 'sms_twilio_account_sid',
+                'label'   => 'Twilio Account SID',
+                'type'    => 'text',
+            ],
+            [
+                'key'     => 'sms_twilio_auth_token',
+                'label'   => 'Twilio Auth Token',
+                'type'    => 'password',
+            ],
+            [
+                'key'     => 'sms_twilio_from',
+                'label'   => 'Twilio From Number',
+                'type'    => 'text',
+            ],
+        ],
+    ],
 ];
