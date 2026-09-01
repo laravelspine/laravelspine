@@ -275,4 +275,42 @@ return [
             ],
         ],
     ],
+    [
+        'slug'     => 'misc',
+        'label'    => 'Misc',
+        'icon'     => '🔧',
+        'position' => 40,
+        'fields'   => [
+            [
+                'key'     => 'media_max_file_size_upload',
+                'label'   => 'Max Upload File Size (MB)',
+                'type'    => 'number',
+                'default' => '25',
+            ],
+            [
+                'key'     => 'delete_activity_log_older_then',
+                'label'   => 'Delete Activity Log Older Than (months)',
+                'type'    => 'number',
+                'default' => '2',
+            ],
+            [
+                'key'     => 'tables_pagination_limit',
+                'label'   => 'Table Pagination Limit',
+                'type'    => 'number',
+                'default' => '25',
+            ],
+            [
+                'key'     => 'show_table_export_button',
+                'label'   => 'Show Table Export Button',
+                'type'    => 'checkbox',
+                'default' => '1',
+            ],
+            [
+                'key'     => 'limit_top_search_bar_results_to',
+                'label'   => 'Search Results Limit',
+                'type'    => 'number',
+                'default' => '30',
+            ],
+        ],
+    ],
 ];
