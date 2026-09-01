@@ -115,6 +115,49 @@ class ModuleController extends Controller
     }
 
     /**
+     * Aggregated extensions — menu + widgets dari SEMUA modul aktif.
+     *
+     * Padanan legacy get_sidebar_menu_items() + render_dashboard_widgets():
+     * frontend cukup satu request untuk merender Sidebar & Dashboard.
+     *
+     * @authenticated
+     *
+     * @response scenario=success {
+     *   "menu": [{"slug":"sample","label":"Sample","icon":"📦","href":"/sample","position":90}],
+     *   "widgets": [{"id":"sample-items","area":"right-4","title":"Sample Items","api":"/api/v1/sample"}]
+     * }
+     */
+    public function extensions(): JsonResponse
+    {
+        $menu = [];
+        $widgets = [];
+
+        foreach ($this->modules->allEnabled() as $module) {
+            $manifestFile = $module->getPath() . '/manifest.php';
+            if (! is_file($manifestFile)) {
+                continue;
+            }
+
+            $manifest = require $manifestFile;
+
+            foreach ($manifest['menu'] ?? [] as $item) {
+                $item['module'] = $module->getName();
+                $menu[] = $item;
+            }
+
+            foreach ($manifest['widgets'] ?? [] as $widget) {
+                $widget['module'] = $module->getName();
+                $widgets[] = $widget;
+            }
+        }
+
+        // Urutkan menu by position (padanan App_menu position).
+        usort($menu, fn ($a, $b) => ($a['position'] ?? 999) <=> ($b['position'] ?? 999));
+
+        return response()->json(['menu' => $menu, 'widgets' => $widgets]);
+    }
+
+    /**
      * Enable a module.
      *
      * @authenticated

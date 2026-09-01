@@ -64,6 +64,7 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     // Modules (discovery & management)
     Route::get('/modules', [ModuleController::class, 'index']);
     Route::get('/modules/enabled', [ModuleController::class, 'enabled']);
+    Route::get('/modules/extensions', [ModuleController::class, 'extensions']);
     Route::post('/modules/install', [ModuleController::class, 'install']);
     Route::get('/modules/{name}', [ModuleController::class, 'show']);
     Route::get('/modules/{name}/manifest', [ModuleController::class, 'manifest']);
