@@ -60,17 +60,17 @@ return [
         'position' => 10,
         'fields'   => [
             [
-                'key'     => 'invoice_company_name',
+                'key'     => 'company_name',
                 'label'   => 'Company Name',
                 'type'    => 'text',
             ],
             [
-                'key'     => 'invoice_company_address',
+                'key'     => 'company_address',
                 'label'   => 'Address',
                 'type'    => 'text',
             ],
             [
-                'key'     => 'invoice_company_city',
+                'key'     => 'company_city',
                 'label'   => 'City',
                 'type'    => 'text',
             ],
@@ -80,17 +80,17 @@ return [
                 'type'    => 'text',
             ],
             [
-                'key'     => 'invoice_company_country_code',
+                'key'     => 'company_country_code',
                 'label'   => 'Country Code',
                 'type'    => 'text',
             ],
             [
-                'key'     => 'invoice_company_postal_code',
+                'key'     => 'company_postal_code',
                 'label'   => 'Postal Code',
                 'type'    => 'text',
             ],
             [
-                'key'     => 'invoice_company_phonenumber',
+                'key'     => 'company_phonenumber',
                 'label'   => 'Phone Number',
                 'type'    => 'text',
             ],
