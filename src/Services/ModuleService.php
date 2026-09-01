@@ -110,7 +110,7 @@ class ModuleService
      * Install a module from a zip file.
      *
      * The zip must contain a `module.json` (at the zip root or inside a single
-     * top-level folder). The module is extracted to `modules/<Name>/`, enabled
+     * top-level folder). The module is extracted to `Modules/<Name>/`, enabled
      * right away, then the module migrations are run (if any).
      *
      * @return array<string, mixed>|null module details, null on failure
@@ -147,7 +147,7 @@ class ModuleService
             return null;
         }
 
-        $targetDir = base_path('modules') . DIRECTORY_SEPARATOR . $moduleName;
+        $targetDir = base_path('Modules') . DIRECTORY_SEPARATOR . $moduleName;
 
         if (is_dir($targetDir)) {
             $zip->close();
@@ -155,9 +155,9 @@ class ModuleService
             return null; // already installed
         }
 
-        // Stage INSIDE modules/ (same filesystem → moveDirectory/rename is safe;
-        // /tmp may be a different FS → EXDEV). modules/ must be writable by the FPM user.
-        $staging = base_path('modules') . DIRECTORY_SEPARATOR . '.staging-' . uniqid('mod_', true);
+        // Stage INSIDE Modules/ (same filesystem → moveDirectory/rename is safe;
+        // /tmp may be a different FS → EXDEV). Modules/ must be writable by the FPM user.
+        $staging = base_path('Modules') . DIRECTORY_SEPARATOR . '.staging-' . uniqid('mod_', true);
         if (! File::makeDirectory($staging, 0755, true)) {
             $zip->close();
 
