@@ -38,6 +38,7 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     Route::put('/settings/{key}', [SettingController::class, 'upsert']);
     Route::delete('/settings/{key}', [SettingController::class, 'destroy']);
     Route::post('/settings/bulk', [SettingController::class, 'bulk']);
+    Route::get('/settings/schema', [SettingController::class, 'schema']);
 
     // Activity Logs (resource REST, multi-tenant)
     Route::apiResource('activity-logs', ActivityLogController::class)->only([

@@ -101,13 +101,14 @@ class ModuleController extends Controller
             return response()->json(['message' => 'Module not found'], 404);
         }
 
-        $manifestFile = $module->getPath() . '/manifest.php';
+        // find() mengembalikan array hasil mapModule — 'path' sudah tersedia.
+        $manifestFile = $module['path'] . '/manifest.php';
         $manifest = is_file($manifestFile) ? require $manifestFile : [];
 
         return response()->json([
-            'name'    => $module->getName(),
-            'alias'   => $module->getAlias(),
-            'enabled' => $module->isEnabled(),
+            'name'    => $module['name'],
+            'alias'   => $module['lower'],
+            'enabled' => $module['enabled'],
             'menu'    => $manifest['menu'] ?? [],
             'widgets' => $manifest['widgets'] ?? [],
         ]);

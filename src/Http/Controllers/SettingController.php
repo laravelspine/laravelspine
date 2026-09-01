@@ -20,8 +20,47 @@ use Illuminate\Http\Request;
 class SettingController extends Controller
 {
     public function __construct(
-        private readonly SettingService $settings
+        private readonly SettingService $settings,
+        private readonly \Nwidart\Modules\Contracts\RepositoryInterface $modules
     ) {}
+
+    /**
+     * Settings schema — gabungan manifest semua modul AKTIF.
+     *
+     * Kontrak frontend untuk halaman Settings: tab (slug/label/icon/position)
+     * + fields generic (key/label/type/options/default). Core tidak tahu
+     * detail per modul — cukup render apa yang dikirim manifest.
+     *
+     * @authenticated
+     *
+     * @response scenario=success {
+     *   "tabs": [
+     *     {"slug":"sample","label":"Sample","icon":"📦","position":51,
+     *      "fields":[{"key":"sample_prefix","label":"Prefix","type":"text","default":"SMP"}]}
+     *   ]
+     * }
+     */
+    public function schema(): JsonResponse
+    {
+        $tabs = [];
+
+        foreach ($this->modules->allEnabled() as $module) {
+            $manifestFile = $module->getPath() . '/manifest.php';
+            if (! is_file($manifestFile)) {
+                continue;
+            }
+
+            $manifest = require $manifestFile;
+            foreach ($manifest['settings'] ?? [] as $tab) {
+                $tabs[] = $tab;
+            }
+        }
+
+        // Urutkan berdasarkan position (padanan position di App_tabs).
+        usort($tabs, fn ($a, $b) => ($a['position'] ?? 999) <=> ($b['position'] ?? 999));
+
+        return response()->json(['tabs' => $tabs]);
+    }
 
     /**
      * Get a setting by key.
