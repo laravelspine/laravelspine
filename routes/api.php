@@ -34,11 +34,12 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::get('/auth/me', [AuthController::class, 'me']);
 
+    // Settings (schema SEBELUM {key} supaya tidak tertangkap wildcard)
+    Route::get('/settings/schema', [SettingController::class, 'schema']);
     Route::get('/settings/{key}', [SettingController::class, 'show']);
     Route::put('/settings/{key}', [SettingController::class, 'upsert']);
     Route::delete('/settings/{key}', [SettingController::class, 'destroy']);
     Route::post('/settings/bulk', [SettingController::class, 'bulk']);
-    Route::get('/settings/schema', [SettingController::class, 'schema']);
 
     // Activity Logs (resource REST, multi-tenant)
     Route::apiResource('activity-logs', ActivityLogController::class)->only([
