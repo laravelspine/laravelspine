@@ -17,16 +17,45 @@ use ZipArchive;
  *  - Store PDFs to storage (per-tenant)
  *  - Bulk export many documents → a single ZIP file (job/queue for heavy work)
  *
+ * PDF template options (font, sizes, colors) are resolved from the DB
+ * setting (SettingService); config('pdf.*') is the reset default when the
+ * setting is absent.
  */
 class PdfService
 {
+    /** Setting keys exposed to PDF templates. */
+    private const OPTION_KEYS = [
+        'pdf_font',
+        'pdf_font_size',
+        'pdf_logo_width',
+        'pdf_table_heading_color',
+        'pdf_table_heading_text_color',
+    ];
+
     public function __construct(
-        private readonly FileService $file
+        private readonly FileService $file,
+        private readonly SettingService $settings
     ) {}
 
     public function disk(): Filesystem
     {
         return Storage::disk((string) config('pdf.disk', 'local'));
+    }
+
+    /**
+     * PDF template options, resolved as: DB setting (SettingService) →
+     * config('pdf.*') reset default (e.g. pdf_font → config('pdf.font')).
+     *
+     * @return array<string, string>
+     */
+    public function options(): array
+    {
+        return array_combine(self::OPTION_KEYS, array_map(
+            fn (string $key): string => (string) (
+                $this->settings->get($key) ?? config('pdf.'.substr($key, 4))
+            ),
+            self::OPTION_KEYS
+        ));
     }
 
     /**
@@ -66,7 +95,7 @@ class PdfService
 
         $pdf = DomPdf::loadView(
             $payload['view'],
-            $payload['data'] ?? []
+            array_merge($this->options(), $payload['data'] ?? [])
         )->setPaper(
             $payload['paper'] ?? config('pdf.defaults.paper', 'a4'),
             $payload['orientation'] ?? config('pdf.defaults.orientation', 'portrait')

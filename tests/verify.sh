@@ -24,8 +24,8 @@ fi
 
 FAIL=0
 
-echo "== lint: semua src/ =="
-BAD=$(find "$PACKAGE/src" -name '*.php' -exec "$PHP" -l {} \; 2>/dev/null | grep -v 'No syntax errors' || true)
+echo "== lint: semua src/ + config/ =="
+BAD=$(find "$PACKAGE/src" "$PACKAGE/config" -name '*.php' -exec "$PHP" -l {} \; 2>/dev/null | grep -v 'No syntax errors' || true)
 if [ -n "$BAD" ]; then echo "$BAD"; FAIL=1; fi
 echo "lint OK"
 
@@ -69,6 +69,20 @@ echo \$first . '|' . \$veto;
 " 2>&1 | grep -E "^deleting\|deleted" | tail -1)
 echo "run: $R"
 echo "$R" | grep -q "^deleting|deleted|gone=true|VETOED|kept=true" || { echo "FAIL: delete/veto"; FAIL=1; }
+
+echo "== pdf options: SettingService menang, config('pdf.*') fallback reset =="
+R=$("$PHP" artisan tinker --execute="
+use Spine\Services\PdfService; use Spine\Services\SettingService;
+\$s = app(SettingService::class);
+\$s->set('pdf_font', 'Times');
+\$withSetting = app(PdfService::class)->options()['pdf_font'];
+\$s->delete('pdf_font');
+\$afterReset = app(PdfService::class)->options()['pdf_font'];
+\$default = config('pdf.font');
+echo 'setting=' . \$withSetting . '|reset=' . \$afterReset . '|config=' . \$default;
+" 2>&1 | grep -E "^setting=" | tail -1)
+echo "run: $R"
+echo "$R" | grep -q "^setting=Times|reset=DejaVu Sans|config=DejaVu Sans" || { echo "FAIL: pdf options"; FAIL=1; }
 
 echo "== hook: PdfCreating/PdfCreated + veto =="
 R=$("$PHP" artisan tinker --execute="

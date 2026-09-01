@@ -11,7 +11,8 @@ class SpineServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        // config('pdf.*') = reset defaults; published copy can override.
+        $this->mergeConfigFrom(__DIR__.'/../config/pdf.php', 'pdf');
     }
 
     public function boot(): void
