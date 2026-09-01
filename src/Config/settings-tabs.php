@@ -18,6 +18,150 @@ declare(strict_types=1);
  */
 return [
     [
+        'slug'     => 'general',
+        'label'    => 'General',
+        'icon'     => '⚙️',
+        'position' => 5,
+        'fields'   => [
+            [
+                'key'     => 'companyname',
+                'label'   => 'Company Name',
+                'type'    => 'text',
+            ],
+            [
+                'key'     => 'main_domain',
+                'label'   => 'Main Domain',
+                'type'    => 'text',
+            ],
+            [
+                'key'     => 'allowed_files',
+                'label'   => 'Allowed Upload File Types',
+                'type'    => 'text',
+                'default' => 'jpg,png,jpeg,gif,pdf,doc,xls,txt,zip',
+            ],
+            [
+                'key'     => 'rtl_support_admin',
+                'label'   => 'RTL Support (admin)',
+                'type'    => 'checkbox',
+                'default' => '0',
+            ],
+            [
+                'key'     => 'rtl_support_client',
+                'label'   => 'RTL Support (client)',
+                'type'    => 'checkbox',
+                'default' => '0',
+            ],
+        ],
+    ],
+    [
+        'slug'     => 'company',
+        'label'    => 'Company Information',
+        'icon'     => '🏢',
+        'position' => 10,
+        'fields'   => [
+            [
+                'key'     => 'invoice_company_name',
+                'label'   => 'Company Name',
+                'type'    => 'text',
+            ],
+            [
+                'key'     => 'invoice_company_address',
+                'label'   => 'Address',
+                'type'    => 'text',
+            ],
+            [
+                'key'     => 'invoice_company_city',
+                'label'   => 'City',
+                'type'    => 'text',
+            ],
+            [
+                'key'     => 'company_state',
+                'label'   => 'State',
+                'type'    => 'text',
+            ],
+            [
+                'key'     => 'invoice_company_country_code',
+                'label'   => 'Country Code',
+                'type'    => 'text',
+            ],
+            [
+                'key'     => 'invoice_company_postal_code',
+                'label'   => 'Postal Code',
+                'type'    => 'text',
+            ],
+            [
+                'key'     => 'invoice_company_phonenumber',
+                'label'   => 'Phone Number',
+                'type'    => 'text',
+            ],
+            [
+                'key'     => 'company_vat',
+                'label'   => 'VAT Number',
+                'type'    => 'text',
+            ],
+            [
+                'key'     => 'company_info_format',
+                'label'   => 'Company Info Format',
+                'type'    => 'textarea',
+                'default' => '{company_name}\n{address}, {city}\n{state}, {zip_code}\n{country_code}\n{phone}\n{vat_number_with_label}',
+            ],
+        ],
+    ],
+    [
+        'slug'     => 'localization',
+        'label'    => 'Localization',
+        'icon'     => '🌐',
+        'position' => 15,
+        'fields'   => [
+            [
+                'key'     => 'dateformat',
+                'label'   => 'Date Format',
+                'type'    => 'select',
+                'options' => [
+                    ['value' => 'Y-m-d', 'label' => 'Y-m-d (2026-09-01)'],
+                    ['value' => 'd-m-Y', 'label' => 'd-m-Y (01-09-2026)'],
+                    ['value' => 'm/d/Y', 'label' => 'm/d/Y (09/01/2026)'],
+                    ['value' => 'd.m.Y', 'label' => 'd.m.Y (01.09.2026)'],
+                ],
+                'default' => 'Y-m-d',
+            ],
+            [
+                'key'     => 'time_format',
+                'label'   => 'Time Format',
+                'type'    => 'select',
+                'options' => [
+                    ['value' => '24', 'label' => '24-hour'],
+                    ['value' => '12', 'label' => '12-hour'],
+                ],
+                'default' => '24',
+            ],
+            [
+                'key'     => 'default_timezone',
+                'label'   => 'Default Timezone',
+                'type'    => 'select',
+                'options' => [
+                    ['value' => 'UTC', 'label' => 'UTC'],
+                    ['value' => 'Asia/Jakarta', 'label' => 'Asia/Jakarta (WIB)'],
+                    ['value' => 'Asia/Makassar', 'label' => 'Asia/Makassar (WITA)'],
+                    ['value' => 'Asia/Jayapura', 'label' => 'Asia/Jayapura (WIT)'],
+                    ['value' => 'America/New_York', 'label' => 'America/New_York'],
+                    ['value' => 'Europe/London', 'label' => 'Europe/London'],
+                ],
+                'default' => 'UTC',
+            ],
+            [
+                'key'     => 'active_language',
+                'label'   => 'Default Language',
+                'type'    => 'select',
+                'options' => [
+                    ['value' => 'english', 'label' => 'English'],
+                    ['value' => 'indonesia', 'label' => 'Indonesia'],
+                ],
+                'default' => 'english',
+            ],
+        ],
+    ],
+    [
         'slug'     => 'email',
         'label'    => 'Email',
         'icon'     => '✉️',
