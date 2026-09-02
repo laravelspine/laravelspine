@@ -17,6 +17,7 @@ class SpineServiceProvider extends ServiceProvider
 
         $this->commands([
             \Spine\Console\Commands\MakeSpineModule::class,
+            \Spine\Console\Commands\MakeSpineEntity::class,
         ]);
     }
 

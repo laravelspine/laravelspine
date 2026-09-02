@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('name');
             $table->text('description')->nullable();
             $table->string('status', 32)->default('draft'); // draft|in_progress|done
+{{parent_fk}}
             $table->timestamps();
         });
     }

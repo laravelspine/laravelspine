@@ -23,10 +23,12 @@ class {{Entity}}Controller extends Controller
     {
     }
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
         // Kontrak API Spine: bungkus {data: [...]} — konsisten dengan core.
-        return response()->json(['data' => {{Entity}}::orderByDesc('id')->get()]);
+        $query = {{Entity}}::query();
+{{parent_filter}}
+        return response()->json(['data' => $query->orderByDesc('id')->get()]);
     }
 
     public function store(Request $request): JsonResponse
@@ -35,6 +37,7 @@ class {{Entity}}Controller extends Controller
             'name'        => ['required', 'string', 'max:190'],
             'description' => ['nullable', 'string'],
             'status'      => ['sometimes', 'string', 'in:' . implode(',', {{Entity}}::STATUSES)],
+{{parent_validation}}
         ]);
 
         $entity = {{Entity}}::create($validated);

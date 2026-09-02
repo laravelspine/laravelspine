@@ -31,7 +31,7 @@ class {{Entity}} extends Model
         self::STATUS_DONE,
     ];
 
-    protected $fillable = ['name', 'description', 'status', 'ulid'];
+    protected $fillable = ['name', 'description', 'status', 'ulid'{{parent_fillable}}];
 
     protected $casts = [
         'id' => 'integer',
@@ -44,4 +44,5 @@ class {{Entity}} extends Model
     {
         return ['ulid'];
     }
+{{parent_relation}}
 }
