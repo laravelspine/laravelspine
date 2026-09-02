@@ -124,12 +124,13 @@ class MakeSpineEntity extends SpineScaffoldCommand
 PHP;
         $block = str_replace(array_keys($repl), array_values($repl), $block);
 
-        // Sisipkan sebelum penutup group terakhir ("    });" + "\n});")
+        // Sisipkan SETELAH penutup group terakhir ("    });") — level sama
+        // dengan group entity pertama, bukan nested di dalamnya.
         $pos = strrpos($content, "    });");
         if ($pos === false) {
             $content .= "\n" . $block;
         } else {
-            $content = substr_replace($content, $block, $pos, 0);
+            $content = substr_replace($content, "\n" . $block, $pos + strlen("    });"), 0);
         }
         file_put_contents($file, $content);
     }
