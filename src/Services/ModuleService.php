@@ -74,6 +74,34 @@ class ModuleService
         return $this->modules->isDisabled($name);
     }
 
+    /**
+     * Widget agregat dari manifest SEMUA modul aktif.
+     * Dipakai extensions() (katalog frontend) + validasi state dashboard
+     * (hanya widget terdaftar yang boleh disimpan di layout/visibility user).
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function widgets(): array
+    {
+        $widgets = [];
+
+        foreach ($this->modules->allEnabled() as $module) {
+            $manifestFile = $module->getPath() . '/manifest.php';
+            if (! is_file($manifestFile)) {
+                continue;
+            }
+
+            $manifest = require $manifestFile;
+
+            foreach ($manifest['widgets'] ?? [] as $widget) {
+                $widget['module'] = $module->getName();
+                $widgets[] = $widget;
+            }
+        }
+
+        return $widgets;
+    }
+
     public function enable(string $name): bool
     {
         $module = $this->modules->find($name);

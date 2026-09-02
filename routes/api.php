@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Spine\Http\Controllers\ActivityLogController;
 use Spine\Http\Controllers\AuthController;
 use Spine\Http\Controllers\BroadcastController;
+use Spine\Http\Controllers\DashboardController;
 use Spine\Http\Controllers\ExcelController;
 use Spine\Http\Controllers\FileController;
 use Spine\Http\Controllers\GdprController;
@@ -72,6 +73,12 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     Route::post('/modules/{name}/enable', [ModuleController::class, 'enable']);
     Route::post('/modules/{name}/disable', [ModuleController::class, 'disable']);
     Route::post('/modules/{name}/uninstall', [ModuleController::class, 'uninstall']);
+
+    // Dashboard widgets (state layout & visibility per user)
+    Route::get('/dashboard', [DashboardController::class, 'show']);
+    Route::put('/dashboard/order', [DashboardController::class, 'saveOrder']);
+    Route::put('/dashboard/visibility', [DashboardController::class, 'saveVisibility']);
+    Route::post('/dashboard/reset', [DashboardController::class, 'reset']);
 
     // System (utilitas aplikasi)
     Route::get('/system/languages', [SystemController::class, 'languages']);

@@ -131,7 +131,6 @@ class ModuleController extends Controller
     public function extensions(): JsonResponse
     {
         $menu = [];
-        $widgets = [];
         $detailTabs = [];
 
         foreach ($this->moduleRepository->allEnabled() as $module) {
@@ -146,11 +145,6 @@ class ModuleController extends Controller
             foreach ($manifest['menu'] ?? [] as $item) {
                 $item['module'] = $module->getName();
                 $menu[] = $item;
-            }
-
-            foreach ($manifest['widgets'] ?? [] as $widget) {
-                $widget['module'] = $module->getName();
-                $widgets[] = $widget;
             }
 
             if (! empty($manifest['detail_tabs'] ?? [])) {
@@ -178,7 +172,7 @@ class ModuleController extends Controller
 
         return response()->json([
             'menu' => $menu,
-            'widgets' => $widgets,
+            'widgets' => $this->modules->widgets(),
             'detail_tabs' => $detailTabs,
         ]);
     }
