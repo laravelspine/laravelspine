@@ -158,6 +158,21 @@ class ModuleController extends Controller
             }
         }
 
+        // HOOK tab lintas modul (padanan add_customer_profile_tab legacy):
+        // modul lain bisa menambah tab ke detail modul target via
+        // manifest['extend_detail_tabs'][target_lower] = [tab, ...].
+        foreach ($this->moduleRepository->allEnabled() as $module) {
+            $manifestFile = $module->getPath() . '/manifest.php';
+            if (! is_file($manifestFile)) {
+                continue;
+            }
+
+            $manifest = require $manifestFile;
+            foreach ($manifest['extend_detail_tabs'] ?? [] as $target => $tabs) {
+                $detailTabs[$target] = array_merge($detailTabs[$target] ?? [], $tabs);
+            }
+        }
+
         // Urutkan menu by position (padanan App_menu position).
         usort($menu, fn ($a, $b) => ($a['position'] ?? 999) <=> ($b['position'] ?? 999));
 
