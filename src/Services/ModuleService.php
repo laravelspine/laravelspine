@@ -102,6 +102,39 @@ class ModuleService
         return $widgets;
     }
 
+    /**
+     * Spesifikasi RBAC deklaratif (key 'rbac' di manifest.php) semua modul aktif.
+     * Dipakai command spine:rbac:sync.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function rbacSpecs(?string $only = null): array
+    {
+        $specs = [];
+
+        foreach ($this->modules->allEnabled() as $module) {
+            if ($only && strtolower($module->getName()) !== strtolower($only)) {
+                continue;
+            }
+
+            $manifestFile = $module->getPath() . '/manifest.php';
+            if (! is_file($manifestFile)) {
+                continue;
+            }
+
+            $manifest = require $manifestFile;
+            $rbac = $manifest['rbac'] ?? null;
+            if (! is_array($rbac)) {
+                continue;
+            }
+
+            $rbac['module'] = $module->getName();
+            $specs[] = $rbac;
+        }
+
+        return $specs;
+    }
+
     public function enable(string $name): bool
     {
         $module = $this->modules->find($name);

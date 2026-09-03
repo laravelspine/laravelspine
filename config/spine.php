@@ -28,4 +28,17 @@ return [
     'settings' => [
         'restrict' => false,
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | RBAC (spatie/laravel-permission)
+    |--------------------------------------------------------------------------
+    | Guard yang dipakai saat spine:rbac:sync membuat role/permission.
+    | Null = ikut config('permission.defaults.guard') → guard auth default.
+    | Konsumen API-only (Sanctum) set 'sanctum' — konsisten dgn guard_name
+    | model User & role yang dibuat seeder.
+    */
+    'rbac' => [
+        'guard' => null,
+    ],
 ];
