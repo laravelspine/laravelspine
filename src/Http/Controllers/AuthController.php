@@ -48,6 +48,13 @@ class AuthController extends Controller
             ]);
         }
 
+        // Akun nonaktif (kolom is_active opsional per konsumen) ditolak login.
+        if (array_key_exists('is_active', $user->getAttributes()) && ! $user->is_active) {
+            throw ValidationException::withMessages([
+                'email' => ['This account is disabled.'],
+            ]);
+        }
+
         $token = $user->createToken($validated['device_name'] ?? 'web')->plainTextToken;
 
         return response()->json([
@@ -75,6 +82,11 @@ class AuthController extends Controller
      */
     public function register(Request $request): JsonResponse
     {
+        // Kebijakan konsumen: registrasi publik bisa dinonaktifkan via config.
+        if (! config('spine.auth.allow_register', true)) {
+            return response()->json(['message' => 'Registration is disabled.'], 403);
+        }
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:190'],
             'email' => ['required', 'email', 'max:190'],

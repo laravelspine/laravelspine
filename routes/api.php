@@ -36,11 +36,19 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     Route::get('/auth/me', [AuthController::class, 'me']);
 
     // Settings (schema SEBELUM {key} supaya tidak tertangkap wildcard)
-    Route::get('/settings/schema', [SettingController::class, 'schema']);
-    Route::get('/settings/{key}', [SettingController::class, 'show']);
-    Route::put('/settings/{key}', [SettingController::class, 'upsert']);
-    Route::delete('/settings/{key}', [SettingController::class, 'destroy']);
-    Route::post('/settings/bulk', [SettingController::class, 'bulk']);
+    // Gerbang permission opsional per konsumen: spine.settings.restrict.
+    $settingsRead = config('spine.settings.restrict', false)
+        ? ['permission:settings:view']
+        : [];
+    $settingsWrite = config('spine.settings.restrict', false)
+        ? ['permission:settings:edit']
+        : [];
+
+    Route::get('/settings/schema', [SettingController::class, 'schema'])->middleware($settingsRead);
+    Route::get('/settings/{key}', [SettingController::class, 'show'])->middleware($settingsRead);
+    Route::put('/settings/{key}', [SettingController::class, 'upsert'])->middleware($settingsWrite);
+    Route::delete('/settings/{key}', [SettingController::class, 'destroy'])->middleware($settingsWrite);
+    Route::post('/settings/bulk', [SettingController::class, 'bulk'])->middleware($settingsWrite);
 
     // Activity Logs (resource REST, multi-tenant)
     Route::apiResource('activity-logs', ActivityLogController::class)->only([
