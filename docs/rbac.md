@@ -84,12 +84,39 @@ Aturan:
 | Key           | Isi                                                                 |
 |---------------|---------------------------------------------------------------------|
 | `permissions` | Daftar permission modul, format `feature:capability`                |
-| `roles`       | Role baru modul. `name` = identifier spatie (slug); `label` = tampilan UI (kolom opsional `roles.label`, abaikan bila tidak ada). `permissions`: `'*'` = semua permission modul, `'feature:*'` = semua ber-prefix, selain itu literal (boleh permission modul lain). |
+| `roles`       | Role baru modul. `name` = identifier spatie (slug); `label` = tampilan UI (kolom opsional `roles.label`, abaikan bila tidak ada). `permissions`: `'*'` = semua permission modul, `'feature:*'` = semua ber-prefix, selain itu literal. |
 | `grants`      | `roleYangSudahAda => [permission...]`. Role yang belum ada **di-skip dengan peringatan** — jangan jadikan grants sebagai tempat membuat role. |
 
 Nama permission & role bersifat **global** (satu registry per database):
 prefix `feature:` milik modul = namespace modul. Jangan mendeklarasikan
 permission modul lain.
+
+### Wildcard resolution
+
+`RbacService::resolve()` merangkai daftar permission konkret sebelum
+`syncPermissions`. Urutan yang dikenal:
+
+| Pola          | Dipetakan ke                                                       |
+|---------------|--------------------------------------------------------------------|
+| `'*'`         | Semua permission di `permissions` modul ini sendiri                |
+| `'feature:*'` | Semua permission di `permissions` modul yang ber-prefix `feature:` |
+| `'feature:capability'` (literal) | Permission itu sendiri (`findOrCreate` — boleh merujuk permission modul lain, berguna untuk grants) |
+
+Duplikat hasil beberapa pola di-de-dup via key nama permission.
+
+Contoh:
+
+```php
+'permissions' => ['customer:view', 'customer:create', 'customer:edit', 'customer:delete'],
+'roles' => [
+    ['name' => 'customer-admin', 'permissions' => ['customer:*']],
+    // → dapat 4 permission konkret
+    ['name' => 'customer-staff', 'permissions' => ['customer:view', 'customer:edit']],
+    // → dapat 2 permission konkret
+],
+'grants' => ['staff' => ['customer:view']],
+// 'staff' dapat 'customer:view' (bukan modul ini)
+```
 
 ## Sinkronisasi
 
@@ -101,6 +128,24 @@ php artisan spine:rbac:sync --module=Region # satu modul
 Idempotent (`findOrCreate` + `syncPermissions`). Jalankan saat:
 modul baru dipasang, manifest `rbac` berubah, atau sehabis `migrate:fresh`.
 Role `admin` super-admin tidak disentuh command ini (urusan seeder konsumen).
+
+Output:
+
+```
++---------+-------------+-------+--------+
+| Modul   | Permissions | Roles | Grants |
++---------+-------------+-------+--------+
+| Region  | 1           | 0     | 1      |
+| Customers | 4         | 3     | 1      |
++---------+-------------+-------+--------+
+RBAC tersinkron. Cache permission dibersihkan.
+```
+
+`grants` ke role yang belum ada tidak dihitung dan di-emit sebagai
+`warn` per item, dengan format `  [Module] grant ke role 'nama-role'
+dibatalkan (role tidak ada)`. Tabel migrasi spatie belum ada → exit code
+`FAILURE` dengan pesan ajakan menjalankan `vendor:publish` + `migrate`
+(lihat Setup konsumen). Cache spatie di-forget otomatis di akhir command.
 
 ## Scope & environment (data)
 
