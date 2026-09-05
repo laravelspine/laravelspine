@@ -132,6 +132,7 @@ class ModuleController extends Controller
     {
         $menu = [];
         $detailTabs = [];
+        $profileTabs = [];
 
         foreach ($this->moduleRepository->allEnabled() as $module) {
             $manifestFile = $module->getPath() . '/manifest.php';
@@ -149,6 +150,11 @@ class ModuleController extends Controller
 
             if (! empty($manifest['detail_tabs'] ?? [])) {
                 $detailTabs[$lower] = $manifest['detail_tabs'];
+            }
+
+            foreach ($manifest['profile_tabs'] ?? [] as $tab) {
+                $tab['module'] = $module->getName();
+                $profileTabs[] = $tab;
             }
         }
 
@@ -169,11 +175,13 @@ class ModuleController extends Controller
 
         // Urutkan menu by position (padanan App_menu position).
         usort($menu, fn ($a, $b) => ($a['position'] ?? 999) <=> ($b['position'] ?? 999));
+        usort($profileTabs, fn ($a, $b) => ($a['position'] ?? 999) <=> ($b['position'] ?? 999));
 
         return response()->json([
             'menu' => $menu,
             'widgets' => $this->modules->widgets(),
             'detail_tabs' => $detailTabs,
+            'profile_tabs' => $profileTabs,
         ]);
     }
 
