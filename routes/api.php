@@ -11,6 +11,7 @@ use Spine\Http\Controllers\GdprController;
 use Spine\Http\Controllers\MailController;
 use Spine\Http\Controllers\MetaController;
 use Spine\Http\Controllers\ModuleController;
+use Spine\Http\Controllers\NotificationController;
 use Spine\Http\Controllers\NumberToWordController;
 use Spine\Http\Controllers\PaymentController;
 use Spine\Http\Controllers\PdfController;
@@ -137,6 +138,11 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     Route::get('/tags', [TagController::class, 'index']);
     Route::post('/tags', [TagController::class, 'store']);
     Route::delete('/tags/{id}', [TagController::class, 'destroy']);
+
+    // Notifications (bell; scope pribadi per user, auth saja)
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
 
     // Broadcasting (Laravel Broadcasting/Reverb)
     Route::get('/broadcast/config', [BroadcastController::class, 'config']);
