@@ -10,11 +10,12 @@ use Illuminate\Notifications\Notification;
  * Base notification untuk bell dashboard.
  *
  * Modul extends class ini lalu mengirim via
- * `Notification::route('database', $users)->notify(new XxxNotification(...))`.
+ * `Notification::send($users, new XxxNotification(...))`.
  *
  * HOOK channel = override `via()`: tambah 'mail', 'broadcast' (pusher),
  * 'telegram', dll — infra tidak berubah, shape `toDatabase()` tetap.
- * Shape database: title, body, module, data (opsional, per-modul).
+ * Shape database: title, body, module, url (opsional, target halaman),
+ * data (opsional, per-modul).
  */
 abstract class BaseNotification extends Notification
 {
@@ -22,6 +23,7 @@ abstract class BaseNotification extends Notification
         public string $title,
         public string $body,
         public string $module = '',
+        public ?string $url = null,
         public array $data = [],
     ) {}
 
@@ -36,6 +38,7 @@ abstract class BaseNotification extends Notification
             'title' => $this->title,
             'body' => $this->body,
             'module' => $this->module,
+            'url' => $this->url,
             'data' => $this->data,
         ];
     }
