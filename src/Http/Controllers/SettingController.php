@@ -53,7 +53,9 @@ class SettingController extends Controller
 
             $manifest = require $manifestFile;
             foreach ($manifest['settings'] ?? [] as $tab) {
-                $tabs[] = $tab;
+                // Tandai pemilik tab: konsumen (frontend) hanya menampilkan tab
+                // untuk modul yang benar-benar ia implementasikan.
+                $tabs[] = $tab + ['module' => $module->getLowerName()];
             }
         }
 
