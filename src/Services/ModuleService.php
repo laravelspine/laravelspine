@@ -145,6 +145,14 @@ class ModuleService
 
         $module->enable();
 
+        // Modul yang dinyalakan harus punya tabelnya; jalankan migrasi modul
+        // (idempotent). Gagal migrasi tidak membatalkan enable — dilaporkan oleh pemanggil.
+        try {
+            Artisan::call('module:migrate', ['module' => $name, '--force' => true]);
+        } catch (\Throwable) {
+            // dibiarkan: status modul tetap enabled, migrasi bisa dijalankan manual
+        }
+
         return true;
     }
 
@@ -370,7 +378,7 @@ class ModuleService
             'namespace'  => $namespace,
             'enabled'    => $module->isEnabled(),
             'description' => $module->getDescription(),
-            'priority'   => $module->getPriority(),
+            'priority'   => $priority,
             'providers'  => $module->get('providers', []),
             'aliases'    => $module->get('aliases', []),
         ];

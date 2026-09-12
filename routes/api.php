@@ -72,16 +72,25 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     Route::post('/number-to-word/convert-indian', [NumberToWordController::class, 'convertIndian']);
 
     // Modules (discovery & management)
-    Route::get('/modules', [ModuleController::class, 'index']);
-    Route::get('/modules/enabled', [ModuleController::class, 'enabled']);
+    // extensions dipakai semua user terautentikasi (menu/widget) -> tanpa gate.
     Route::get('/modules/extensions', [ModuleController::class, 'extensions']);
-    Route::post('/modules/install', [ModuleController::class, 'install']);
-    Route::get('/modules/{name}', [ModuleController::class, 'show']);
-    Route::get('/modules/{name}/manifest', [ModuleController::class, 'manifest']);
-    Route::get('/modules/{name}/status', [ModuleController::class, 'status']);
-    Route::post('/modules/{name}/enable', [ModuleController::class, 'enable']);
-    Route::post('/modules/{name}/disable', [ModuleController::class, 'disable']);
-    Route::post('/modules/{name}/uninstall', [ModuleController::class, 'uninstall']);
+
+    // Manajemen modul = platform admin. Permission modules:* hanya dipegang
+    // super-admin (Gate::before) sampai role lain diberi izin eksplisit.
+    Route::middleware('permission:modules:view')->group(function () {
+        Route::get('/modules', [ModuleController::class, 'index']);
+        Route::get('/modules/enabled', [ModuleController::class, 'enabled']);
+        Route::get('/modules/{name}', [ModuleController::class, 'show']);
+        Route::get('/modules/{name}/manifest', [ModuleController::class, 'manifest']);
+        Route::get('/modules/{name}/status', [ModuleController::class, 'status']);
+    });
+
+    Route::middleware('permission:modules:manage')->group(function () {
+        Route::post('/modules/install', [ModuleController::class, 'install']);
+        Route::post('/modules/{name}/enable', [ModuleController::class, 'enable']);
+        Route::post('/modules/{name}/disable', [ModuleController::class, 'disable']);
+        Route::post('/modules/{name}/uninstall', [ModuleController::class, 'uninstall']);
+    });
 
     // Dashboard widgets (state layout & visibility per user)
     Route::get('/dashboard', [DashboardController::class, 'show']);
