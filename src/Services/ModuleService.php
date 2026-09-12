@@ -143,7 +143,10 @@ class ModuleService
             return false;
         }
 
-        $module->enable();
+        // Lewat activator, bukan $module->enable(): Method itu memanggil fireEvent()
+        // yang memakai $this->app['events'] dan gagal di bawah Octane
+        // ("Target class [events] does not exist") pada instance container saat itu.
+        $this->activator->enable($module);
 
         // Modul yang dinyalakan harus punya tabelnya; jalankan migrasi modul
         // (idempotent). Gagal migrasi tidak membatalkan enable — dilaporkan oleh pemanggil.
@@ -164,7 +167,9 @@ class ModuleService
             return false;
         }
 
-        $module->disable();
+        // Sama seperti enable(): hindari fireEvent() yang fragile di bawah Octane.
+        $this->activator->disable($module);
+
         return true;
     }
 
