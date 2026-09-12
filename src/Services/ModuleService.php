@@ -382,6 +382,8 @@ class ModuleService
             'path'       => $module->getPath(),
             'namespace'  => $namespace,
             'enabled'    => $module->isEnabled(),
+            // Modul yang ditemukan di filesystem = terpasang (kontrak status API).
+            'installed'  => true,
             'description' => $module->getDescription(),
             'priority'   => $priority,
             'providers'  => $module->get('providers', []),
