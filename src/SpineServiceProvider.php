@@ -6,6 +6,9 @@ namespace Spine;
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use Spatie\Permission\Middleware\PermissionMiddleware;
+use Spatie\Permission\Middleware\RoleMiddleware;
+use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
 
 class SpineServiceProvider extends ServiceProvider
 {
@@ -27,6 +30,7 @@ class SpineServiceProvider extends ServiceProvider
     {
         $this->loadRoutes();
         $this->loadMigrations();
+        $this->registerSpatieMiddleware();
     }
 
     /**
@@ -49,6 +53,19 @@ class SpineServiceProvider extends ServiceProvider
         });
     }
 
+    /**
+     * Register Spatie permission middleware aliases.
+     */
+    private function registerSpatieMiddleware(): void
+    {
+        $router = $this->app['router'];
+        $router->aliasMiddleware('permission', PermissionMiddleware::class);
+        $router->aliasMiddleware('role', RoleMiddleware::class);
+        $router->aliasMiddleware('role_or_permission', RoleOrPermissionMiddleware::class);
+    }
+    /**
+     * Load package migrations.
+     */
     private function loadMigrations(): void
     {
         $migrations = __DIR__ . '/../database/migrations';
@@ -56,4 +73,7 @@ class SpineServiceProvider extends ServiceProvider
             $this->loadMigrationsFrom($migrations);
         }
     }
+
+
+
 }

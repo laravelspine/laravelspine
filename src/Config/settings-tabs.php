@@ -156,6 +156,9 @@ return [
                 'options' => [
                     ['value' => 'english', 'label' => 'English'],
                     ['value' => 'indonesia', 'label' => 'Indonesia'],
+                    ['value' => 'korean', 'label' => '한국어'],
+                    ['value' => 'chinese', 'label' => '中文'],
+                    ['value' => 'japanese', 'label' => '日本語'],
                 ],
                 'default' => 'english',
             ],

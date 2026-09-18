@@ -21,6 +21,9 @@ use Spine\Http\Controllers\SettingController;
 use Spine\Http\Controllers\SmsController;
 use Spine\Http\Controllers\SystemController;
 use Spine\Http\Controllers\TagController;
+use Spine\Http\Controllers\UserController;
+use Spine\Http\Controllers\RoleController;
+use Spine\Http\Controllers\PermissionController;
 
 // Seluruh API infrastruktur di-versi-kan (tanpa kecuali).
 // v1 = kontrak stabil pertama; breaking change berikutnya → v2, dst.
@@ -158,7 +161,12 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
 
-    // Broadcasting (Laravel Broadcasting/Reverb)
-    Route::get('/broadcast/config', [BroadcastController::class, 'config']);
-    Route::post('/broadcast/test', [BroadcastController::class, 'sendTest']);
+    // User management (platform admin)
+    Route::apiResource('users', UserController::class);
+
+    // Role management
+    Route::apiResource('roles', RoleController::class);
+
+    // Permission management
+    Route::apiResource('permissions', PermissionController::class);
 });
