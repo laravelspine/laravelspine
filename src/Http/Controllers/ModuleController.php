@@ -116,6 +116,51 @@ class ModuleController extends Controller
     }
 
     /**
+     * Serve bundle frontend modul — public, pakai CORS supaya bisa
+     * di-import browser dari origin frontend (nextjs-spine) via import(url).
+     *
+     * Lokasi: Modules/{Alias}/frontend/dist/{file} (hasil build modul frontend,
+     * mis. spine-modules/sampletasks → dist/sampletasks.module.js).
+     *
+     * @urlParam alias string required Module alias. Example: sampletasks
+     * @urlParam file string required File name di frontend/dist. Example: sampletasks.module.js
+     *
+     * @response status=200
+     * @response status=404 scenario=not-found {"message":"Asset not found"}
+     */
+    public function asset(string $alias, string $file): \Illuminate\Http\Response
+    {
+        if ($file === '' || str_contains($file, '..') || str_contains($file, '/')) {
+            return response('Bad Request', 400)->header('Access-Control-Allow-Origin', '*');
+        }
+
+        $module = collect($this->moduleRepository->allEnabled())
+            ->first(fn ($m) => strtolower($m->getName()) === strtolower($alias));
+
+        if (! $module) {
+            return response('Module not found', 404)->header('Access-Control-Allow-Origin', '*');
+        }
+
+        $path = $module->getPath() . '/frontend/dist/' . $file;
+        if (! is_file($path)) {
+            return response('Asset not found', 404)->header('Access-Control-Allow-Origin', '*');
+        }
+
+        $mime = match (pathinfo($file, PATHINFO_EXTENSION)) {
+            'js' => 'text/javascript',
+            'mjs' => 'text/javascript',
+            'map' => 'application/json',
+            'css' => 'text/css',
+        default => 'application/octet-stream',
+        };
+
+        return response(file_get_contents($path))
+            ->header('Content-Type', $mime)
+            ->header('Access-Control-Allow-Origin', '*')
+            ->header('Cache-Control', 'public, max-age=86400');
+    }
+
+    /**
      * Aggregated extensions — menu + widgets dari SEMUA modul aktif.
      *
      * Padanan legacy get_sidebar_menu_items() + render_dashboard_widgets():
@@ -133,6 +178,7 @@ class ModuleController extends Controller
         $menu = [];
         $detailTabs = [];
         $profileTabs = [];
+        $modules = [];
 
         foreach ($this->moduleRepository->allEnabled() as $module) {
             $manifestFile = $module->getPath() . '/manifest.php';
@@ -142,6 +188,16 @@ class ModuleController extends Controller
 
             $manifest = require $manifestFile;
             $lower = strtolower($module->getName());
+
+            // Daftar modul aktif beserta entry_url bundle frontend (discovery
+            // backend-driven). Frontend core (nextjs-spine) memakai ini untuk
+            // memuat bundle modul via import(url) runtime — bukan daftar hardcoded.
+            $modules[] = [
+                'name'      => $module->getName(),
+                'alias'     => $lower,
+                'enabled'   => true,
+                'entry_url' => $manifest['frontend']['entry_url'] ?? null,
+            ];
 
             foreach ($manifest['menu'] ?? [] as $item) {
                 $item['module'] = $module->getName();
@@ -182,6 +238,7 @@ class ModuleController extends Controller
             'widgets' => $this->modules->widgets(),
             'detail_tabs' => $detailTabs,
             'profile_tabs' => $profileTabs,
+            'modules' => $modules,
         ]);
     }
 

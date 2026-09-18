@@ -28,6 +28,11 @@ use Spine\Http\Controllers\TagController;
 Route::prefix('v1')->group(function () {
     Route::post('/auth/login', [AuthController::class, 'login']);
     Route::post('/auth/register', [AuthController::class, 'register']);
+
+    // Bundle frontend modul (dari Modules/{Name}/frontend/dist). Publik —
+    // di-import browser via import(url) saat runtime (bukan fetch terotentikasi).
+    Route::get('/modules/assets/{alias}/{file}', [ModuleController::class, 'asset'])
+        ->where('file', '.*');
 });
 
 Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
