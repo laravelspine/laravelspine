@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace Spine;
 
+use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 use Spatie\Permission\Middleware\RoleMiddleware;
 use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
+use Spine\Console\Commands\MakeSpineEntity;
+use Spine\Console\Commands\MakeSpineModule;
+use Spine\Console\Commands\SyncRbacCommand;
 
 class SpineServiceProvider extends ServiceProvider
 {
@@ -20,9 +24,9 @@ class SpineServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__.'/../config/spine.php', 'spine');
 
         $this->commands([
-            \Spine\Console\Commands\MakeSpineModule::class,
-            \Spine\Console\Commands\MakeSpineEntity::class,
-            \Spine\Console\Commands\SyncRbacCommand::class,
+            MakeSpineModule::class,
+            MakeSpineEntity::class,
+            SyncRbacCommand::class,
         ]);
     }
 
@@ -30,6 +34,7 @@ class SpineServiceProvider extends ServiceProvider
     {
         $this->loadRoutes();
         $this->loadMigrations();
+        $this->registerBroadcast();
         $this->registerSpatieMiddleware();
     }
 
@@ -43,7 +48,7 @@ class SpineServiceProvider extends ServiceProvider
      */
     private function loadRoutes(): void
     {
-        $routes = __DIR__ . '/../routes/api.php';
+        $routes = __DIR__.'/../routes/api.php';
         if (! is_file($routes)) {
             return;
         }
@@ -51,6 +56,24 @@ class SpineServiceProvider extends ServiceProvider
         Route::middleware('api')->prefix('api')->group(function () use ($routes) {
             $this->loadRoutesFrom($routes);
         });
+    }
+
+    /**
+     * Realtime — daftarkan auth broadcast (Sanctum) + private channel
+     * `user.{id}` untuk event NotificationSent. Endpoint auth jadinya
+     * `POST /api/v1/broadcasting/auth` (app API-only; default='web' tak cocok).
+     */
+    private function registerBroadcast(): void
+    {
+        Broadcast::routes([
+            'middleware' => ['api', 'auth:sanctum'],
+            'prefix' => 'api/v1',
+        ]);
+
+        $channels = __DIR__.'/../routes/channels.php';
+        if (is_file($channels)) {
+            require $channels;
+        }
     }
 
     /**
@@ -63,17 +86,15 @@ class SpineServiceProvider extends ServiceProvider
         $router->aliasMiddleware('role', RoleMiddleware::class);
         $router->aliasMiddleware('role_or_permission', RoleOrPermissionMiddleware::class);
     }
+
     /**
      * Load package migrations.
      */
     private function loadMigrations(): void
     {
-        $migrations = __DIR__ . '/../database/migrations';
+        $migrations = __DIR__.'/../database/migrations';
         if (is_dir($migrations)) {
             $this->loadMigrationsFrom($migrations);
         }
     }
-
-
-
 }
