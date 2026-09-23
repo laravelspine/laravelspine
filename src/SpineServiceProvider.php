@@ -12,6 +12,7 @@ use Spatie\Permission\Middleware\RoleMiddleware;
 use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
 use Spine\Console\Commands\MakeSpineEntity;
 use Spine\Console\Commands\MakeSpineModule;
+use Spine\Console\Commands\SyncCoreRbacCommand;
 use Spine\Console\Commands\SyncRbacCommand;
 
 class SpineServiceProvider extends ServiceProvider
@@ -26,6 +27,7 @@ class SpineServiceProvider extends ServiceProvider
         $this->commands([
             MakeSpineModule::class,
             MakeSpineEntity::class,
+            SyncCoreRbacCommand::class,
             SyncRbacCommand::class,
         ]);
     }

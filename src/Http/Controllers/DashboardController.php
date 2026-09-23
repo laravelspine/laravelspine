@@ -15,7 +15,8 @@ use Illuminate\Http\Request;
  * Padanan legacy save_dashboard_widgets_order / _visibility / reset_dashboard:
  * frontend kirim STATE PENUH per drop (bukan diff); area layout bebas
  * (frontend yang define grid-nya); id widget divalidasi terhadap manifest
- * modul aktif (extension registry) — widget siluman ditolak.
+ * modul aktif (extension registry) + allowlist widget CORE (CORE_WIDGETS) —
+ * widget siluman ditolak.
  *
  * Kontrak:
  *   GET  /api/v1/dashboard              -> {layout, visibility} (null = default)
@@ -28,7 +29,27 @@ use Illuminate\Http\Request;
  */
 class DashboardController extends Controller
 {
+    /**
+     * Widget dashboard CORE (bukan modul) — selalu ada di dashboard frontend
+     * dan ikut dipersist per user: aktivitas terbaru + pautan cepat.
+     * Frontend core menempatkannya di area default left-8 / right-4.
+     */
+    private const CORE_WIDGETS = ['activity-log', 'quick-links'];
+
     public function __construct(private ModuleService $modules) {}
+
+    /**
+     * Seluruh widget id yang boleh disimpan: manifest modul aktif + CORE_WIDGETS.
+     *
+     * @return list<string>
+     */
+    private function registeredWidgetIds(): array
+    {
+        return array_values(array_unique([
+            ...array_column($this->modules->widgets(), 'id'),
+            ...self::CORE_WIDGETS,
+        ]));
+    }
 
     /**
      * State dashboard user saat ini.
@@ -77,7 +98,7 @@ class DashboardController extends Controller
             return response()->json(['message' => 'layout wajib berupa map area -> widget id'], 422);
         }
 
-        $registered = array_column($this->modules->widgets(), 'id');
+        $registered = $this->registeredWidgetIds();
         $clean = [];
 
         foreach ($layout as $area => $widgets) {
@@ -132,7 +153,7 @@ class DashboardController extends Controller
             return response()->json(['message' => 'widgets wajib berupa array [{id, visible}]'], 422);
         }
 
-        $registered = array_column($this->modules->widgets(), 'id');
+        $registered = $this->registeredWidgetIds();
         $map = [];
 
         foreach ($items as $item) {
