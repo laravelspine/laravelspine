@@ -1,0 +1,16 @@
+{
+    "name": "Sample",
+    "alias": "sample",
+    "description": "Boilerplate module — contoh implementasi HOOK (event listeners) dan API untuk modul Spine.",
+    "keywords": ["spine", "boilerplate", "sample", "hook", "api"],
+    "priority": 0,
+    "providers": [
+        "Modules\\Sample\\Providers\\SampleServiceProvider"
+    ],
+    "files": [],
+    "migration": {
+        "seeds": [
+            "Modules\\Sample\\database\\seeders\\SampleItemsSeeder"
+        ]
+    }
+}

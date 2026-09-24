@@ -12,8 +12,10 @@ use Spatie\Permission\Middleware\RoleMiddleware;
 use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
 use Spine\Console\Commands\MakeSpineEntity;
 use Spine\Console\Commands\MakeSpineModule;
+use Spine\Console\Commands\AppCron;
 use Spine\Console\Commands\SyncCoreRbacCommand;
 use Spine\Console\Commands\SyncRbacCommand;
+use Spine\Http\Middleware\SetLocale;
 
 class SpineServiceProvider extends ServiceProvider
 {
@@ -24,11 +26,18 @@ class SpineServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__.'/../config/sms.php', 'sms');
         $this->mergeConfigFrom(__DIR__.'/../config/spine.php', 'spine');
 
+        // Publish app-specific config
+        $this->publishes([
+            __DIR__.'/../src/Config/menus.php' => config_path('menus.php'),
+            __DIR__.'/../src/Config/public_content.php' => config_path('public_content.php'),
+        ], 'spine-config');
+
         $this->commands([
             MakeSpineModule::class,
             MakeSpineEntity::class,
             SyncCoreRbacCommand::class,
             SyncRbacCommand::class,
+            AppCron::class,
         ]);
     }
 
@@ -39,6 +48,7 @@ class SpineServiceProvider extends ServiceProvider
         $this->loadViews();
         $this->registerBroadcast();
         $this->registerSpatieMiddleware();
+        $this->registerLocaleMiddleware();
     }
 
     /**
@@ -110,6 +120,15 @@ class SpineServiceProvider extends ServiceProvider
         if (is_dir($views)) {
             $this->loadViewsFrom($views, 'spine');
         }
+    }
+
+    /**
+     * Register SetLocale middleware.
+     */
+    private function registerLocaleMiddleware(): void
+    {
+        $router = $this->app['router'];
+        $router->pushMiddlewareToGroup('api', SetLocale::class);
     }
 
     /**

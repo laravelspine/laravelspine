@@ -4,16 +4,19 @@ use Illuminate\Support\Facades\Route;
 use Spine\Http\Controllers\ActivityLogController;
 use Spine\Http\Controllers\AuthController;
 use Spine\Http\Controllers\BroadcastController;
+use Spine\Http\Controllers\CronController;
 use Spine\Http\Controllers\DashboardController;
 use Spine\Http\Controllers\ExcelController;
 use Spine\Http\Controllers\FileController;
 use Spine\Http\Controllers\GdprController;
 use Spine\Http\Controllers\MailController;
+use Spine\Http\Controllers\MenuController;
 use Spine\Http\Controllers\MetaController;
 use Spine\Http\Controllers\ModuleController;
 use Spine\Http\Controllers\NotificationController;
 use Spine\Http\Controllers\NumberToWordController;
 use Spine\Http\Controllers\PaymentController;
+use Spine\Http\Controllers\PublicController;
 use Spine\Http\Controllers\PdfController;
 use Spine\Http\Controllers\PermissionController;
 use Spine\Http\Controllers\QrCodeController;
@@ -23,6 +26,7 @@ use Spine\Http\Controllers\SettingController;
 use Spine\Http\Controllers\SmsController;
 use Spine\Http\Controllers\SystemController;
 use Spine\Http\Controllers\TagController;
+use Spine\Http\Controllers\TranslationController;
 use Spine\Http\Controllers\UserController;
 
 // Seluruh API infrastruktur di-versi-kan (tanpa kecuali).
@@ -41,6 +45,21 @@ Route::prefix('v1')->group(function () {
         ->where('file', '.*');
 });
 
+// Public utility endpoints — tidak butuh auth
+Route::prefix('v1')->group(function () {
+    Route::get('/test', function () {
+        return response()->json(['status' => 'ok', 'message' => 'Spine API is running']);
+    });
+
+    Route::get('/health', function () {
+        return response()->json(['status' => 'healthy']);
+    });
+
+    Route::get('/public/content', [PublicController::class, 'content']);
+    Route::get('/translations/{locale}', [TranslationController::class, 'translations']);
+});
+
+// Auth-required routes
 Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 
     // Auth (terautentikasi)
@@ -186,4 +205,12 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 
     // Permission management
     Route::apiResource('permissions', PermissionController::class);
+
+    // Menu registry
+    Route::get('/menus/sidebar', [MenuController::class, 'sidebar']);
+    Route::get('/menus/quick-actions', [MenuController::class, 'quickActions']);
+    Route::get('/meta/settings-tabs', [MenuController::class, 'settingsTabs']);
+
+    // Cron shell (auth:sanctum, admin-only)
+    Route::post('/cron/run', [CronController::class, 'run']);
 });
