@@ -168,6 +168,46 @@ class AuthController extends Controller
     }
 
     /**
+     * Update current user profile (name, email, language).
+     *
+     * @authenticated
+     *
+     * @bodyParam name string optional Display name. Example: John Doe
+     * @bodyParam email string optional Email address. Example: john@example.com
+     * @bodyParam language string optional Language code (en, id, ko, ja, zh). Example: id
+     *
+     * @response scenario=success {
+     *   "user": {"id": 1, "name": "Demo", "email": "demo@spine.test", "language": "id"}
+     * }
+     */
+    public function updateProfile(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $userClass = (string) config('auth.providers.users.model');
+        $userModel = new $userClass();
+
+        $validated = $request->validate([
+            'name' => 'sometimes|string|max:255',
+            'email' => 'sometimes|email|max:255|unique:users,email,' . $user->id,
+            'language' => 'sometimes|in:en,id,ko,ja,zh',
+        ]);
+
+        if (isset($validated['name'])) {
+            $userModel->where('id', $user->id)->update(['name' => $validated['name']]);
+        }
+        if (isset($validated['email'])) {
+            $userModel->where('id', $user->id)->update(['email' => $validated['email']]);
+        }
+        if (isset($validated['language'])) {
+            $userModel->where('id', $user->id)->update(['language' => $validated['language']]);
+        }
+
+        $user->refresh();
+
+        return response()->json(['user' => $this->formatUser($user)]);
+    }
+
+    /**
      * Get 2FA status for the current user.
      *
      * @authenticated
