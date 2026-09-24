@@ -187,4 +187,40 @@ class SettingController extends Controller
 
         return response()->json(['data' => $out]);
     }
+
+    /**
+     * Profile settings schema — gabungan core profile tabs + module profile_tabs.
+     *
+     * Mirrors schema() tapi untuk halaman Profile (per-user settings).
+     * Setiap user dapat mengakses profile settings-nya sendiri.
+     *
+     * @authenticated
+     *
+     * @response scenario=success {
+     *   "tabs": [
+     *     {"slug":"account","label":"Account","icon":"👤","position":5,
+     *      "fields":[{"key":"name","label":"Full Name","type":"text"}]}
+     *   ]
+     * }
+     */
+    public function profileSchema(): JsonResponse
+    {
+        $tabs = require __DIR__ . '/../../Config/profile-tabs.php';
+
+        foreach ($this->modules->allEnabled() as $module) {
+            $manifestFile = $module->getPath() . '/manifest.php';
+            if (! is_file($manifestFile)) {
+                continue;
+            }
+
+            $manifest = require $manifestFile;
+            foreach ($manifest['profile_tabs'] ?? [] as $tab) {
+                $tabs[] = $tab + ['module' => $module->getLowerName()];
+            }
+        }
+
+        usort($tabs, fn ($a, $b) => ($a['position'] ?? 999) <=> ($b['position'] ?? 999));
+
+        return response()->json(['tabs' => $tabs]);
+    }
 }

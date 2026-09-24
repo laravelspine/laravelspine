@@ -65,6 +65,10 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     Route::delete('/settings/{key}', [SettingController::class, 'destroy'])->middleware($settingsWrite);
     Route::post('/settings/bulk', [SettingController::class, 'bulk'])->middleware($settingsWrite);
 
+    // Profile Settings (per-user, tanpa permission restriction)
+    Route::get('/profile/schema', [SettingController::class, 'profileSchema']);
+    Route::post('/profile/bulk', [SettingController::class, 'bulk']);
+
     // Activity Logs (resource REST, multi-tenant)
     Route::apiResource('activity-logs', ActivityLogController::class)->only([
         'index', 'show', 'store', 'destroy',
