@@ -36,6 +36,7 @@ class SpineServiceProvider extends ServiceProvider
     {
         $this->loadRoutes();
         $this->loadMigrations();
+        $this->loadViews();
         $this->registerBroadcast();
         $this->registerSpatieMiddleware();
     }
@@ -97,6 +98,17 @@ class SpineServiceProvider extends ServiceProvider
         $migrations = __DIR__.'/../database/migrations';
         if (is_dir($migrations)) {
             $this->loadMigrationsFrom($migrations);
+        }
+    }
+
+    /**
+     * Load package views.
+     */
+    private function loadViews(): void
+    {
+        $views = __DIR__.'/../src/Views';
+        if (is_dir($views)) {
+            $this->loadViewsFrom($views, 'spine');
         }
     }
 }

@@ -28,9 +28,12 @@ use Spine\Http\Controllers\UserController;
 // Seluruh API infrastruktur di-versi-kan (tanpa kecuali).
 // v1 = kontrak stabil pertama; breaking change berikutnya → v2, dst.
 // Login/register publik; sisanya butuh Sanctum token.
+// Auth endpoints - login/register are public; 2FA challenge flow is also public
 Route::prefix('v1')->group(function () {
     Route::post('/auth/login', [AuthController::class, 'login']);
     Route::post('/auth/register', [AuthController::class, 'register']);
+    Route::post('/auth/2fa/verify', [AuthController::class, 'twoFactorVerify']);
+    Route::post('/auth/2fa/email/send', [AuthController::class, 'twoFactorEmailSend']);
 
     // Bundle frontend modul (dari Modules/{Name}/frontend/dist). Publik —
     // di-import browser via import(url) saat runtime (bukan fetch terotentikasi).
@@ -43,6 +46,9 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     // Auth (terautentikasi)
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::get('/auth/me', [AuthController::class, 'me']);
+    Route::get('/auth/2fa/status', [AuthController::class, 'twoFactorStatus']);
+    Route::post('/auth/2fa/enable', [AuthController::class, 'twoFactorEnable']);
+    Route::post('/auth/2fa/disable', [AuthController::class, 'twoFactorDisable']);
 
     // Settings (schema SEBELUM {key} supaya tidak tertangkap wildcard)
     // Gerbang permission opsional per konsumen: spine.settings.restrict.
