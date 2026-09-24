@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Spine\Services;
 
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\File;
 use Nwidart\Modules\Contracts\ActivatorInterface;
 use Nwidart\Modules\Contracts\RepositoryInterface;
@@ -156,6 +157,9 @@ class ModuleService
             // dibiarkan: status modul tetap enabled, migrasi bisa dijalankan manual
         }
 
+        // FR-MOD-02: auto-sync RBAC from all active modules after enabling
+        $this->syncAllModuleRbac();
+
         return true;
     }
 
@@ -170,7 +174,22 @@ class ModuleService
         // Sama seperti enable(): hindari fireEvent() yang fragile di bawah Octane.
         $this->activator->disable($module);
 
+        // FR-MOD-02: re-sync RBAC after disable (removes module permissions)
+        $this->syncAllModuleRbac();
+
         return true;
+    }
+
+    /**
+     * Re-sync RBAC from ALL active modules. Idempotent.
+     */
+    private function syncAllModuleRbac(): void
+    {
+        $rbac = app(RbacService::class);
+        foreach ($this->rbacSpecs() as $spec) {
+            $rbac->sync($spec);
+        }
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
     }
 
     public function getPath(string $name): ?string
@@ -273,13 +292,56 @@ class ModuleService
         $this->clearModuleCache();
         $this->setEnabled($moduleName, true);
 
+        // FR-MOD-06: validate minimum app version from manifest
+        $manifestFile = $targetDir . '/manifest.php';
+        if (is_file($manifestFile)) {
+            $manifest = require $manifestFile;
+            $minAppVersion = $manifest['requires']['app'] ?? null;
+            if ($minAppVersion && version_compare(app()->version(), $minAppVersion, '<')) {
+                $this->setEnabled($moduleName, false);
+                File::deleteDirectory($targetDir);
+                $this->clearModuleCache();
+
+                return null;
+            }
+        }
+
         try {
             Artisan::call('module:migrate', ['module' => $moduleName]);
         } catch (\Throwable) {
             // a module without migrations / failed migrations must not fail the install
         }
 
+        // FR-MOD-02: auto-sync RBAC from module manifest on install
+        $this->syncModuleRbac($moduleName);
+
         return $this->find($moduleName);
+    }
+
+    /**
+     * Sync RBAC permissions from a single module's manifest.
+     * Safe to call multiple times (idempotent via findOrCreate).
+     */
+    public function syncModuleRbac(string $moduleName): void
+    {
+        $module = $this->modules->find($moduleName);
+        if (! $module) {
+            return;
+        }
+
+        $manifestFile = $module->getPath() . '/manifest.php';
+        if (! is_file($manifestFile)) {
+            return;
+        }
+
+        $manifest = require $manifestFile;
+        $rbac = $manifest['rbac'] ?? null;
+        if (! is_array($rbac)) {
+            return;
+        }
+
+        app(RbacService::class)->sync(array_merge($rbac, ['module' => $moduleName]));
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
     }
 
     /**

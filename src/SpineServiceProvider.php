@@ -111,4 +111,25 @@ class SpineServiceProvider extends ServiceProvider
             $this->loadViewsFrom($views, 'spine');
         }
     }
+
+    /**
+     * Register skip-modules escape hatch.
+     * When query ?skip_modules=1 is present (admin-only), modules are not booted.
+     * Used for debugging when a broken module prevents the app from starting.
+     */
+    private function registerSkipModules(): void
+    {
+        if (app()->runningInConsole()) {
+            return;
+        }
+
+        $skip = request()->query('skip_modules', false);
+        if (! filter_var($skip, FILTER_VALIDATE_BOOL)) {
+            return;
+        }
+
+        // Prevent nwidart from loading module service providers.
+        // This is an escape hatch — only for admin debugging.
+        config(['modules.skip' => true]);
+    }
 }

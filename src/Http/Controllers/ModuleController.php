@@ -11,6 +11,7 @@ use Spine\Events\ModuleInstalled;
 use Spine\Events\ModuleUninstalled;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Spatie\Permission\PermissionRegistrar;
 
 /**
  * API for module management (discover, status, enable/disable).
@@ -260,6 +261,9 @@ class ModuleController extends Controller
             return response()->json(['message' => 'Module not found'], 404);
         }
 
+        // FR-MOD-09: refresh permission cache after enable
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
+
         ModuleActivated::dispatch($name);
 
         return response()->json(['message' => "Module '{$name}' enabled", 'enabled' => true]);
@@ -282,6 +286,9 @@ class ModuleController extends Controller
         if (!$disabled) {
             return response()->json(['message' => 'Module not found'], 404);
         }
+
+        // FR-MOD-09: refresh permission cache after disable
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
 
         ModuleDeactivated::dispatch($name);
 
