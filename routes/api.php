@@ -1,0 +1,216 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
+use Spine\Http\Controllers\ActivityLogController;
+use Spine\Http\Controllers\AuthController;
+use Spine\Http\Controllers\BroadcastController;
+use Spine\Http\Controllers\CronController;
+use Spine\Http\Controllers\DashboardController;
+use Spine\Http\Controllers\ExcelController;
+use Spine\Http\Controllers\FileController;
+use Spine\Http\Controllers\GdprController;
+use Spine\Http\Controllers\MailController;
+use Spine\Http\Controllers\MenuController;
+use Spine\Http\Controllers\MetaController;
+use Spine\Http\Controllers\ModuleController;
+use Spine\Http\Controllers\NotificationController;
+use Spine\Http\Controllers\NumberToWordController;
+use Spine\Http\Controllers\PaymentController;
+use Spine\Http\Controllers\PublicController;
+use Spine\Http\Controllers\PdfController;
+use Spine\Http\Controllers\PermissionController;
+use Spine\Http\Controllers\QrCodeController;
+use Spine\Http\Controllers\RelationController;
+use Spine\Http\Controllers\RoleController;
+use Spine\Http\Controllers\SettingController;
+use Spine\Http\Controllers\SmsController;
+use Spine\Http\Controllers\SystemController;
+use Spine\Http\Controllers\TagController;
+use Spine\Http\Controllers\TranslationController;
+use Spine\Http\Controllers\UserController;
+
+// Seluruh API infrastruktur di-versi-kan (tanpa kecuali).
+// v1 = kontrak stabil pertama; breaking change berikutnya → v2, dst.
+// Login/register publik; sisanya butuh Sanctum token.
+// Auth endpoints - login/register are public; 2FA challenge flow is also public
+Route::prefix('v1')->group(function () {
+    Route::post('/auth/login', [AuthController::class, 'login']);
+    Route::post('/auth/register', [AuthController::class, 'register']);
+    Route::post('/auth/2fa/verify', [AuthController::class, 'twoFactorVerify']);
+    Route::post('/auth/2fa/email/send', [AuthController::class, 'twoFactorEmailSend']);
+
+    // Bundle frontend modul (dari Modules/{Name}/frontend/dist). Publik —
+    // di-import browser via import(url) saat runtime (bukan fetch terotentikasi).
+    Route::get('/modules/assets/{alias}/{file}', [ModuleController::class, 'asset'])
+        ->where('file', '.*');
+});
+
+// Public utility endpoints — tidak butuh auth
+Route::prefix('v1')->group(function () {
+    Route::get('/test', function () {
+        return response()->json(['status' => 'ok', 'message' => 'Spine API is running']);
+    });
+
+    Route::get('/health', function () {
+        return response()->json(['status' => 'healthy']);
+    });
+
+    Route::get('/public/content', [PublicController::class, 'content']);
+    Route::get('/translations/{locale}', [TranslationController::class, 'translations']);
+});
+
+// Auth-required routes
+Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
+
+    // Auth (terautentikasi)
+    Route::post('/auth/logout', [AuthController::class, 'logout']);
+    Route::get('/auth/me', [AuthController::class, 'me']);
+    Route::put('/auth/me', [AuthController::class, 'updateProfile']);
+    Route::get('/auth/2fa/status', [AuthController::class, 'twoFactorStatus']);
+    Route::post('/auth/2fa/enable', [AuthController::class, 'twoFactorEnable']);
+    Route::post('/auth/2fa/disable', [AuthController::class, 'twoFactorDisable']);
+
+    // Settings (schema SEBELUM {key} supaya tidak tertangkap wildcard)
+    // Gerbang permission opsional per konsumen: spine.settings.restrict.
+    $settingsRead = config('spine.settings.restrict', false)
+        ? ['permission:settings:view']
+        : [];
+    $settingsWrite = config('spine.settings.restrict', false)
+        ? ['permission:settings:edit']
+        : [];
+
+    Route::get('/settings/schema', [SettingController::class, 'schema'])->middleware($settingsRead);
+    Route::get('/settings/{key}', [SettingController::class, 'show'])->middleware($settingsRead);
+    Route::put('/settings/{key}', [SettingController::class, 'upsert'])->middleware($settingsWrite);
+    Route::delete('/settings/{key}', [SettingController::class, 'destroy'])->middleware($settingsWrite);
+    Route::post('/settings/bulk', [SettingController::class, 'bulk'])->middleware($settingsWrite);
+
+    // Profile Settings (per-user, tanpa permission restriction)
+    Route::get('/profile/schema', [SettingController::class, 'profileSchema']);
+    Route::post('/profile/bulk', [SettingController::class, 'bulk']);
+
+    // Activity Logs (resource REST, multi-tenant)
+    Route::apiResource('activity-logs', ActivityLogController::class)->only([
+        'index', 'show', 'store', 'destroy',
+    ]);
+
+    // Custom Meta (polymorphic, key-value per entity)
+    Route::get('/meta/{type}/{id}', [MetaController::class, 'index']);
+    Route::post('/meta/{type}/{id}', [MetaController::class, 'store']);
+    Route::get('/meta/{type}/{id}/{key}', [MetaController::class, 'show']);
+    Route::put('/meta/{type}/{id}/{key}', [MetaController::class, 'update']);
+    Route::delete('/meta/{type}/{id}/{key}', [MetaController::class, 'destroy']);
+
+    // Relations (inti resolver; tipe di-register module via hook)
+    Route::get('/relations/types', [RelationController::class, 'types']);
+    Route::get('/relations/{type}/{id}', [RelationController::class, 'show']);
+
+    // NumberToWord (angka → terbilang untuk invoice/PDF)
+    Route::post('/number-to-word/convert', [NumberToWordController::class, 'convert']);
+    Route::post('/number-to-word/convert-indian', [NumberToWordController::class, 'convertIndian']);
+
+    // Modules (discovery & management)
+    // extensions dipakai semua user terautentikasi (menu/widget) -> tanpa gate.
+    Route::get('/modules/extensions', [ModuleController::class, 'extensions']);
+
+    // Manajemen modul = platform admin. Permission modules:* hanya dipegang
+    // super-admin (Gate::before) sampai role lain diberi izin eksplisit.
+    Route::middleware('permission:modules:view')->group(function () {
+        Route::get('/modules', [ModuleController::class, 'index']);
+        Route::get('/modules/enabled', [ModuleController::class, 'enabled']);
+        Route::get('/modules/{name}', [ModuleController::class, 'show']);
+        Route::get('/modules/{name}/manifest', [ModuleController::class, 'manifest']);
+        Route::get('/modules/{name}/status', [ModuleController::class, 'status']);
+    });
+
+    Route::middleware('permission:modules:manage')->group(function () {
+        Route::post('/modules/install', [ModuleController::class, 'install']);
+        Route::post('/modules/{name}/enable', [ModuleController::class, 'enable']);
+        Route::post('/modules/{name}/disable', [ModuleController::class, 'disable']);
+        Route::post('/modules/{name}/uninstall', [ModuleController::class, 'uninstall']);
+    });
+
+    // Dashboard widgets (state layout & visibility per user)
+    Route::get('/dashboard', [DashboardController::class, 'show']);
+    Route::put('/dashboard/order', [DashboardController::class, 'saveOrder']);
+    Route::put('/dashboard/visibility', [DashboardController::class, 'saveVisibility']);
+    Route::post('/dashboard/reset', [DashboardController::class, 'reset']);
+
+    // System (utilitas aplikasi)
+    Route::get('/system/languages', [SystemController::class, 'languages']);
+
+    // Files (upload Laravel Storage + metadata)
+    Route::get('/files/limits', [FileController::class, 'limits']);
+    Route::post('/files', [FileController::class, 'store']);
+    Route::get('/files/{id}', [FileController::class, 'show']);
+    Route::get('/files/{id}/download', [FileController::class, 'download']);
+    Route::get('/files/{id}/preview', [FileController::class, 'preview']);
+    Route::delete('/files/{id}', [FileController::class, 'destroy']);
+
+    // Mail
+    Route::post('/mail/send', [MailController::class, 'send']);
+    Route::post('/mail/test', [MailController::class, 'test']);
+    Route::post('/mail/notify', [MailController::class, 'notify']);
+    Route::post('/mail/notify-many', [MailController::class, 'notifyMany']);
+    Route::post('/mail/retry', [MailController::class, 'retryQueue']);
+    Route::post('/mail/cleanup', [MailController::class, 'cleanUpQueue']);
+    Route::get('/mail/queue', [MailController::class, 'queueStatus']);
+
+    // Payment Gateway abstraction
+    Route::get('/payment/gateways', [PaymentController::class, 'index']);
+    Route::post('/payment/intent', [PaymentController::class, 'createIntent']);
+
+    // GDPR / data privacy
+    Route::get('/gdpr/export', [GdprController::class, 'export']);
+    Route::post('/gdpr/anonymize', [GdprController::class, 'anonymize']);
+    Route::post('/gdpr/delete', [GdprController::class, 'delete']);
+
+    // PDF
+    Route::post('/pdf/generate', [PdfController::class, 'generate']);
+    Route::post('/pdf/from-html', [PdfController::class, 'fromHtml']);
+    Route::post('/pdf/bulk-export', [PdfController::class, 'bulkExport']);
+
+    // SMS (Twilio/Clickatell/Msg91 abstraction)
+    Route::post('/sms/send', [SmsController::class, 'send']);
+    Route::get('/sms/drivers', [SmsController::class, 'drivers']);
+
+    // QR Code
+    Route::post('/qr-code/generate', [QrCodeController::class, 'generate']);
+
+    // Excel import/export
+    Route::post('/excel/export', [ExcelController::class, 'export']);
+    Route::post('/excel/import', [ExcelController::class, 'import']);
+
+    // Tags
+    Route::get('/tags', [TagController::class, 'index']);
+    Route::post('/tags', [TagController::class, 'store']);
+    Route::delete('/tags/{id}', [TagController::class, 'destroy']);
+
+    // Notifications (bell; scope pribadi per user, auth saja)
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+
+    // Realtime (Reverb): konfig publik + uji push ke private channel user.{id}.
+    // Auth broadcast (Sanctum) didaftarkan SpineServiceProvider::registerBroadcast().
+    // (Sudah di dalam group middleware auth:sanctum di atas.)
+    Route::get('/broadcast/config', [BroadcastController::class, 'config']);
+    Route::post('/broadcast/test', [BroadcastController::class, 'sendTest']);
+
+    // User management (platform admin)
+    Route::apiResource('users', UserController::class);
+
+    // Role management
+    Route::apiResource('roles', RoleController::class);
+
+    // Permission management
+    Route::apiResource('permissions', PermissionController::class);
+
+    // Menu registry
+    Route::get('/menus/sidebar', [MenuController::class, 'sidebar']);
+    Route::get('/menus/quick-actions', [MenuController::class, 'quickActions']);
+    Route::get('/meta/settings-tabs', [MenuController::class, 'settingsTabs']);
+
+    // Cron shell (auth:sanctum, admin-only)
+    Route::post('/cron/run', [CronController::class, 'run']);
+});

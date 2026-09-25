@@ -11,5 +11,7 @@
 /public/hot
 /Dockerfile
 .docker-compose.yml
+composer.lock
+.phpunit.result.cache
 graphify-out/cost.json
 graphify-out/cache/
