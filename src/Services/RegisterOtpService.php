@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Spine\Services;
 
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 /**
@@ -14,13 +15,14 @@ use Illuminate\Support\Str;
  *   start(email, ip, locale) → send OTP email, return verificationId
  *   verify(verificationId, code, ip) → check code, increment fail counter, maybe ban IP
  *
- * Counter windowed per IP: Redis INCR+EXPIRE if Redis available, fallback rate_counters table.
+ * OTP state and the per-IP failure counter live in the cache; bans are persisted
+ * by IpGuardService so they survive a cache flush. See IpGuardService for the
+ * cache/Redis fallback rules.
  */
 class RegisterOtpService
 {
     private const TTL = 600; // 10 min
     private const MAX_ATTEMPTS = 5;
-    private const FAIL_WINDOW = 3600; // 1 hour
 
     /**
      * Start OTP flow for email + IP.
@@ -94,6 +96,7 @@ class RegisterOtpService
 
         // Success — create user
         Cache::forget($key);
+        app(IpGuardService::class)->clearFailures($ip);
 
         return $this->createStaff($data);
     }
