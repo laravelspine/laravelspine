@@ -56,6 +56,18 @@ class AuthController extends Controller
             ]);
         }
 
+        // The password was just proven correct, so this is the one safe moment
+        // to upgrade a stale hash. Hash::check() reads the algorithm from the
+        // stored string, so an account still on bcrypt keeps working after the
+        // driver moves to argon2id -- it is silently re-hashed here instead.
+        // That is what makes the switch non-breaking: no forced re-login, no
+        // bulk UPDATE over the users table, and no window where credentials
+        // hashed with the old algorithm stop verifying.
+        if (Hash::needsRehash($user->password)) {
+            $user->password = $validated['password'];
+            $user->save();
+        }
+
         // Akun nonaktif (kolom is_active opsional per konsumen) ditolak login.
         if (array_key_exists('is_active', $user->getAttributes()) && ! $user->is_active) {
             throw ValidationException::withMessages([
