@@ -64,12 +64,65 @@ class RbacService
         return $stats;
     }
 
+    /**
+     * Resolve the Spatie guard name.
+     *
+     * Order: explicit spine.rbac.guard -> Spatie's own default -> the guard the
+     * User model itself declares.
+     *
+     * The auth.defaults.guard fallback is deliberately NOT used. In an API-only
+     * consumer that value is "web" while Spine\Models\User sets
+     * $guard_name = 'sanctum', so falling back to it creates a second role
+     * (admin/web) holding every permission while the role actually assigned to
+     * the user (admin/sanctum) stays empty — the account then authenticates
+     * fine but is authorised for nothing.
+     */
     protected function guardName(): string
     {
-        return config('spine.rbac.guard')
-            ?: config('permission.defaults.guard')
-            ?: config('auth.defaults.guard', 'web');
+        $guard = config('spine.rbac.guard') ?: config('permission.defaults.guard');
+
+        if (is_string($guard) && $guard !== '') {
+            return $guard;
+        }
+
+        $userClass = (string) config('auth.providers.users.model');
+
+        if ($userClass !== '' && class_exists($userClass)) {
+            $guard = $this->readGuardName($userClass);
+
+            if ($guard !== null) {
+                return $guard;
+            }
+        }
+
+        return config('auth.defaults.guard', 'web');
     }
+
+    /**
+     * Read $guard_name off a model class without instantiating it for real.
+     *
+     * A plain `$model->guard_name` cannot be used: the property is protected, and
+     * PHP's null-coalescing operator hides that as null instead of erroring, which
+     * would silently send the caller down the wrong-guard fallback.
+     */
+    private function readGuardName(string $userClass): ?string
+    {
+        if (! property_exists($userClass, 'guard_name')) {
+            return null;
+        }
+
+        try {
+            $property = (new \ReflectionClass($userClass))->getProperty('guard_name');
+            $value = $property->getValue($property->isStatic()
+                ? null
+                : $property->getDeclaringClass()->newInstanceWithoutConstructor());
+        } catch (\ReflectionException) {
+            return null;
+        }
+
+        return is_string($value) && $value !== '' ? $value : null;
+    }
+
 
     /**
      * Resolve daftar permission: '*' = semua permission deklarasi modul;

@@ -14,6 +14,23 @@ return [
     'auth' => [
         // Izinkan pendaftaran publik via POST /api/v1/auth/register.
         'allow_register' => true,
+        // Role yang dianggap super admin (AuthController::formatUser -> is_admin).
+        'super_admin_role' => 'admin',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Bootstrap admin (AdminUserSeeder)
+    |--------------------------------------------------------------------------
+    | Credential TIDAK pernah disimpan di repo. Seeder membaca .env consumer:
+    |   ADMIN_EMAIL     (default: admin@spine.test)
+    |   ADMIN_PASSWORD  (opsional — bila kosong, password acak dicetak sekali)
+    | Nilai di bawah hanya fallback supaya seeder tetap jalan di consumer yang
+    | belum menambah key itu ke .env-nya.
+    */
+    'admin' => [
+        'email' => env('ADMIN_EMAIL', 'admin@spine.test'),
+        'name' => env('ADMIN_NAME', 'Administrator'),
     ],
 
     /*
@@ -40,5 +57,6 @@ return [
     */
     'rbac' => [
         'guard' => null,
+        'super_admin_role' => 'admin',
     ],
 ];

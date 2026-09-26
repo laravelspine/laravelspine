@@ -400,6 +400,11 @@ class AuthController extends Controller
 
     /**
      * Format user payload with permissions and roles.
+     *
+     * `permissions` must be the *effective* set, i.e. direct grants plus
+     * everything inherited through roles. Reading the direct relation instead
+     * reports an empty list for any role-based account, so is_admin says true
+     * while every permission-gated feature sees none.
      */
     private function formatUser($user): array
     {
@@ -410,7 +415,7 @@ class AuthController extends Controller
             'ulid' => $user->ulid,
             'language' => $user->language ?? config('app.locale', 'en'),
             'is_admin' => $user->hasRole(config('spine.auth.super_admin_role', 'admin')),
-            'permissions' => $user->permissions->pluck('name')->values()->all(),
+            'permissions' => $user->getAllPermissions()->pluck('name')->values()->all(),
             'roles' => $user->roles->pluck('name')->values()->all(),
         ];
 

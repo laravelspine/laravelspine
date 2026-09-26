@@ -10,6 +10,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
+use Spine\Database\Factories\UserFactory;
 use Spine\Traits\HasMetaData;
 
 /**
@@ -40,6 +41,18 @@ class User extends Authenticatable
         'remember_token',
         'ulid',
     ];
+
+    /**
+     * Resolve the model factory from this package.
+     *
+     * Without this override Laravel guesses a factory namespace from the model
+     * (Database\Factories\Spine\Models\UserFactory) and fails, because the model
+     * lives in Spine\Models while the factory ships with the package.
+     */
+    protected static function newFactory(): UserFactory
+    {
+        return UserFactory::new();
+    }
 
     /**
      * The "booted" method of the model.
