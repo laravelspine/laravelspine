@@ -14,5 +14,8 @@
 composer.lock
 .phpunit.result.cache
 graphify-out/cost.json
-graphify-out/cache/
 !graphify-out/*
+# these two must come AFTER the !graphify-out/* negation, otherwise it
+# re-includes them and 4MB of cache files land in every commit
+graphify-out/cache/
+graphify-out/2026-*
