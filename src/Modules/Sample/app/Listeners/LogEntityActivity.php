@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\Sample\Listeners;
 
-use Modules\Sample\Models\SampleItem;
+use Modules\Sample\app\Models\SampleItem;
 use Spine\Events\EntityCreated;
 use Spine\Events\EntityDeleted;
 use Spine\Events\EntityUpdated;
