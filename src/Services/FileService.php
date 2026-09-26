@@ -20,6 +20,16 @@ namespace Spine\Services;
 class FileService
 {
     /**
+     * Extensions treated as raster images for the content-type cross-check.
+     *
+     * Kept separate from the allow-list because the MIME assertion is only
+     * meaningful for types a browser will decode and render.
+     */
+    protected const IMAGE_EXTENSIONS = [
+        'jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'ico', 'tif', 'tiff',
+    ];
+
+    /**
      * Format bytes into a human-readable string (e.g. "1.5 MB").
      *
      * @param int $bytes
@@ -246,6 +256,58 @@ class FileService
                 'file' => sprintf('Files of type "%s" are not allowed.', $this->safeExtension($effective)),
             ]);
         }
+
+        $this->assertImageMimeIsConsistent($file, $effective);
+    }
+
+    /**
+     * Refuse an image upload whose real content type is not an image.
+     *
+     * Scoped to image extensions on purpose. Sniffing every upload would
+     * reject legitimate files: a CSV saved by Excel sniffs as
+     * application/vnd.ms-excel, text/plain or application/octet-stream
+     * depending on the version, and an .odt/.docx is a zip. Asserting the
+     * sniffed type across the board would trade a real hole for a flood of
+     * false rejections.
+     *
+     * Images are the case that bites. A file named avatar.jpg that actually
+     * contains SVG or HTML is served back to a browser and executes, which
+     * is stored XSS -- and the extension allow-list cannot see it, because
+     * it only inspects the name the client chose.
+     *
+     * @param \Illuminate\Http\UploadedFile $file
+     * @param string $extension
+     * @return void
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    protected function assertImageMimeIsConsistent(
+        \Illuminate\Http\UploadedFile $file,
+        string $extension
+    ): void {
+        if (!config('spine.files.verify_image_mime', true)) {
+            return;
+        }
+
+        if (!in_array($extension, static::IMAGE_EXTENSIONS, true)) {
+            return;
+        }
+
+        $mime = strtolower((string) $file->getMimeType());
+
+        // svg is already on the blocked list, but it can still arrive under
+        // an allowed image name, and it is scriptable.
+        if (str_starts_with($mime, 'image/') && $mime !== 'image/svg+xml') {
+            return;
+        }
+
+        throw \Illuminate\Validation\ValidationException::withMessages([
+            'file' => sprintf(
+                'The file "%s" is not a valid %s image.',
+                $this->safeExtension($extension),
+                strtoupper($extension)
+            ),
+        ]);
     }
 
     /**

@@ -79,6 +79,24 @@ return [
     | bukan karena kebetulan penamaan ulang.
     */
     'files' => [
+        /*
+        | Cross-check the sniffed content type for image uploads. Hanya
+        | berlaku untuk extension gambar — sniffed type untuk dokumen/arsip
+        | terlalu sering berbeda legitimately (CSV dari Excel bisa
+        | application/vnd.ms-excel, text/plain, atau application/octet-stream;
+        | .odt/.docx itu zip), sehingga assertion menyeluruh akan menimbulkan
+        | false rejection, bukan menutup lubang.
+        |
+        | Yang penting justru kasus gambar: file bernama avatar.jpg tapi
+        | isinya SVG atau HTML akan dikirim balik ke browser dan dieksekusi
+        | (stored XSS), sedangkan allow-list tidak bisa melihatnya karena
+        | hanya memeriksa nama yang dipilih client.
+        |
+        | Set false hanya kalau ada consumer yang memang.sniff tidak bisa
+        | dipercaya (mis. file dibuat on-the-fly tanpa header).
+        */
+        'verify_image_mime' => true,
+
         'allowed_extensions' => [
             // dokumen
             'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'odt', 'ods', 'odp',
