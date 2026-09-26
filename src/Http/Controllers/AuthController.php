@@ -208,6 +208,90 @@ class AuthController extends Controller
     }
 
     /**
+     * Change the current user's password.
+     *
+     * Requires the current password, so a stolen token alone cannot lock the
+     * owner out. Every *other* Sanctum token for the account is revoked; the
+     * token that made the call survives, because the frontend continues with
+     * the same session immediately afterwards.
+     *
+     * Deliberately not gated on the staff.password.change permission. That
+     * permission exists for Perfex parity, but self-service credential
+     * rotation has to be available to every authenticated account --
+     * requiring a grant to change your own password is a lockout waiting to
+     * happen.
+     *
+     * @authenticated
+     *
+     * @bodyParam current_password string required The account's current password.
+     * @bodyParam new_password string required The replacement, min 12 chars with mixed case, a number and a symbol.
+     * @bodyParam new_password_confirmation string required Must match new_password.
+     *
+     * @response scenario=success {
+     *   "success": true,
+     *   "message": "Password updated.",
+     *   "revoked_sessions": 2
+     * }
+     * @response 422 {"message": "The current password is incorrect.", "errors": {"current_password": ["..."]}}
+     */
+    public function updatePassword(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'current_password' => ['required', 'string'],
+            'new_password' => [
+                'required',
+                'string',
+                'confirmed',
+                \Illuminate\Validation\Rules\Password::min(12)
+                    ->letters()
+                    ->mixedCase()
+                    ->numbers()
+                    ->symbols(),
+            ],
+        ]);
+
+        if (!Hash::check($validated['current_password'], (string) $user->password)) {
+            throw ValidationException::withMessages([
+                'current_password' => __('The current password is incorrect.'),
+            ]);
+        }
+
+        if (Hash::check($validated['new_password'], (string) $user->password)) {
+            throw ValidationException::withMessages([
+                'new_password' => __('The new password must be different from the current one.'),
+            ]);
+        }
+
+        $user->forceFill([
+            'password' => Hash::make($validated['new_password']),
+        ])->save();
+
+        $currentTokenId = $user->currentAccessToken()?->getKey();
+
+        // Revoke the other sessions, keep the one that made this call. A
+        // password change that leaves old tokens alive is not a rotation.
+        $query = $user->tokens();
+        if ($currentTokenId !== null) {
+            $query->whereKeyNot($currentTokenId);
+        }
+        $revoked = $query->delete();
+
+        \Spine\Events\PasswordChanged::dispatch(
+            $user,
+            $currentTokenId === null ? null : (string) $currentTokenId,
+            $revoked
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => __('Password updated.'),
+            'revoked_sessions' => $revoked,
+        ]);
+    }
+
+    /**
      * Get 2FA status for the current user.
      *
      * @authenticated
