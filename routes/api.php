@@ -136,6 +136,7 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     Route::put('/dashboard/order', [DashboardController::class, 'saveOrder']);
     Route::put('/dashboard/visibility', [DashboardController::class, 'saveVisibility']);
     Route::post('/dashboard/reset', [DashboardController::class, 'reset']);
+Route::get('/widgets', [DashboardController::class, 'widgets']);
 
     // System (utilitas aplikasi)
     Route::get('/system/languages', [SystemController::class, 'languages']);

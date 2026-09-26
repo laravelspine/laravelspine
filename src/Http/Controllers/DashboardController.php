@@ -8,6 +8,7 @@ use Spine\Models\UserDashboardState;
 use Spine\Services\ModuleService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 /**
  * Dashboard widgets — state layout & visibility PER USER.
@@ -34,7 +35,10 @@ class DashboardController extends Controller
      * dan ikut dipersist per user: aktivitas terbaru + pautan cepat.
      * Frontend core menempatkannya di area default left-8 / right-4.
      */
-    private const CORE_WIDGETS = ['activity-log', 'quick-links'];
+    private const CORE_WIDGETS = [
+        ['id' => 'activity-log', 'title' => 'Activity Log', 'icon' => '📜', 'api' => '/api/v1/activity', 'area' => 'left-8'],
+        ['id' => 'quick-links', 'title' => 'Quick Links', 'icon' => '🔗', 'api' => null, 'area' => 'right-4'],
+    ];
 
     public function __construct(private ModuleService $modules) {}
 
@@ -76,6 +80,64 @@ class DashboardController extends Controller
                 'visibility' => $state->visibility,
             ],
         ]);
+    }
+
+    /**
+     * Daftar widget yang tersedia (dengan metadata) yang boleh dilihat oleh user.
+     *
+     * @authenticated
+     *
+     * @response scenario=success {
+     *   "data": {
+     *     "widgets": [
+     *       {"id": "activity-log", "title": "Activity Log", "icon": "📜", "api": "/api/v1/activity", "area": "left-8", "permission": null},
+     *       {"id": "quick-links", "title": "Quick Links", "icon": "🔗", "api": null, "area": "right-4", "permission": null},
+     *       {"id": "sample-items", "title": "Sample Items", "icon": "📦", "api": "/api/v1/sample", "area": "right-4", "permission": "view.sample-items"}
+     *     ]
+     *   }
+     * }
+     */
+    public function widgets(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        // Widget dari core
+        $widgets = [];
+        foreach (self::CORE_WIDGETS as $widget) {
+            // Core widgets tidak memiliki permission secara eksplisit, maka selalu bisa dilihat
+            $widgets[] = $widget;
+        }
+
+        // Widget dari modul
+        foreach ($this->modules->allEnabled() as $module) {
+            $manifestFile = $module->getPath() . '/manifest.php';
+            if (! is_file($manifestFile)) {
+                continue;
+            }
+
+            $manifest = require $manifestFile;
+
+            foreach ($manifest['widgets'] ?? [] as $widget) {
+                // Cek permission jika ada
+                $permission = $widget['permission'] ?? null;
+                if ($permission !== null && ! $user->can($permission)) {
+                    // User tidak memiliki permission, lewati widget ini
+                    continue;
+                }
+
+                // Pastikan widget memiliki field yang diperlukan
+                $widgets[] = [
+                    'id' => $widget['id'],
+                    'title' => $widget['title'],
+                    'icon' => $widget['icon'] ?? '',
+                    'api' => $widget['api'] ?? null,
+                    'area' => $widget['area'] ?? 'right-4', // default area
+                    'permission' => $permission,
+                ];
+            }
+        }
+
+        return response()->json(['data' => ['widgets' => $widgets]]);
     }
 
     /**
