@@ -7,9 +7,11 @@ namespace Spine;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use Nwidart\Modules\Contracts\ActivatorInterface;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 use Spatie\Permission\Middleware\RoleMiddleware;
 use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
+use Spine\Activators\DatabaseActivator;
 use Spine\Console\Commands\MakeSpineEntity;
 use Spine\Console\Commands\MakeSpineModule;
 use Spine\Console\Commands\AppCron;
@@ -39,6 +41,9 @@ class SpineServiceProvider extends ServiceProvider
             SyncRbacCommand::class,
             AppCron::class,
         ]);
+
+        // Use database-backed activator instead of file-based
+        $this->app->bind(ActivatorInterface::class, DatabaseActivator::class);
     }
 
     public function boot(): void
