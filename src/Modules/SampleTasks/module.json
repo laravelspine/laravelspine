@@ -1,11 +1,11 @@
 {
     "name": "SampleTasks",
     "alias": "sampletasks",
-    "description": "Child module of Sample — menguji entity lifecycle hooks (EntityCreated/Updated/Deleted + status-change pattern) lintas modul.",
-    "keywords": ["spine", "sample", "tasks", "hook", "child-module"],
+    "description": "Child module of Sample — menguji entity lifecycle hooks (status-change pattern) lintas modul.",
+    "keywords": ["spine", "sample", "tasks", "hook"],
     "priority": 0,
     "providers": [
-        "Modules\\SampleTasks\\Providers\\SampleTasksServiceProvider"
+        "Modules\\SampleTasks\\app\\Providers\\SampleTasksServiceProvider"
     ],
     "files": [],
     "migration": {

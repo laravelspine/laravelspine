@@ -14,7 +14,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Modules\\SampleTasks\\Providers\\SampleTasksServiceProvider"
+                "Modules\\SampleTasks\\app\\Providers\\SampleTasksServiceProvider"
             ]
         }
     }
