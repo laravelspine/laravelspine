@@ -151,6 +151,143 @@ class FileService
     }
 
     /**
+     * Extensions accepted by storeUpload(), lowercased.
+     *
+     * @return array<int, string>
+     */
+    public function allowedExtensions(): array
+    {
+        return $this->normalizeExtensions(
+            (array) config('spine.files.allowed_extensions', [])
+        );
+    }
+
+    /**
+     * Extensions always refused, regardless of the allow-list.
+     *
+     * @return array<int, string>
+     */
+    public function blockedExtensions(): array
+    {
+        return $this->normalizeExtensions(
+            (array) config('spine.files.blocked_extensions', [])
+        );
+    }
+
+    /**
+     * Every dot-delimited suffix of a filename, lowercased.
+     *
+     * "report.final.pdf" yields ['final', 'pdf']; ".htaccess" yields
+     * ['htaccess']; "README" yields []. All of them are checked, not just the
+     * effective extension, so "invoice.php.pdf" is refused at the boundary
+     * instead of relying on unique_filename() happening to rename it.
+     *
+     * @param string $filename
+     * @return array<int, string>
+     */
+    public function extensionSegments(string $filename): array
+    {
+        $parts = explode('.', basename($filename));
+
+        if (count($parts) < 2) {
+            return [];
+        }
+
+        array_shift($parts); // the stem, not an extension
+
+        $segments = [];
+        foreach ($parts as $part) {
+            $part = strtolower(trim($part));
+            if ($part !== '') {
+                $segments[] = $part;
+            }
+        }
+
+        return $segments;
+    }
+
+    /**
+     * Refuse an upload whose extension is not explicitly allowed.
+     *
+     * Default-deny. Throws ValidationException keyed on "file" so controllers
+     * and Inertia surface it as a field error rather than a generic failure.
+     *
+     * Runs before Spine\Events\FileUploading is dispatched, so a module
+     * listener can only tighten the policy, never widen it back open.
+     *
+     * @param \Illuminate\Http\UploadedFile $file
+     * @return void
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function assertUploadAllowed(\Illuminate\Http\UploadedFile $file): void
+    {
+        $segments = $this->extensionSegments((string) $file->getClientOriginalName());
+        $blocked = $this->blockedExtensions();
+
+        foreach ($segments as $segment) {
+            if (in_array($segment, $blocked, true)) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'file' => sprintf('Files of type "%s" cannot be uploaded.', $this->safeExtension($segment)),
+                ]);
+            }
+        }
+
+        $effective = $segments === [] ? '' : $segments[count($segments) - 1];
+
+        if ($effective === '') {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'file' => 'The file must have a file extension.',
+            ]);
+        }
+
+        if (!in_array($effective, $this->allowedExtensions(), true)) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'file' => sprintf('Files of type "%s" are not allowed.', $this->safeExtension($effective)),
+            ]);
+        }
+    }
+
+    /**
+     * Lowercase, strip the dot, and drop anything that is not [a-z0-9].
+     *
+     * Keeps a client-supplied name out of validation messages verbatim.
+     *
+     * @param array<int, mixed> $extensions
+     * @return array<int, string>
+     */
+    protected function normalizeExtensions(array $extensions): array
+    {
+        $normalized = [];
+
+        foreach ($extensions as $extension) {
+            if (!is_string($extension)) {
+                continue;
+            }
+
+            $extension = strtolower(ltrim(trim($extension), '.'));
+            $extension = preg_replace('/[^a-z0-9]/', '', $extension) ?? '';
+
+            if ($extension !== '' && !in_array($extension, $normalized, true)) {
+                $normalized[] = $extension;
+            }
+        }
+
+        return $normalized;
+    }
+
+    /**
+     * Make an extension safe to echo back to the client.
+     *
+     * @param string $extension
+     * @return string
+     */
+    protected function safeExtension(string $extension): string
+    {
+        return preg_replace('/[^a-z0-9]/', '', strtolower($extension)) ?? '';
+    }
+
+    /**
      * Store an uploaded file to disk (Laravel Storage), per-tenant path.
      *
      * Standard Laravel pattern with an uploads/{rel_type}/{rel_id}/ directory
@@ -171,6 +308,8 @@ class FileService
         ?int $tenantId = null,
         string $disk = 'local'
     ): string {
+        $this->assertUploadAllowed($file);
+
         \Spine\Events\FileUploading::dispatch($file, $relType, $relId, $tenantId, $disk);
 
         $dir = 'tenants/' . ($tenantId ?? 'global') . '/' . $relType . '/' . $relId;

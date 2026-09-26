@@ -59,4 +59,48 @@ return [
         'guard' => null,
         'super_admin_role' => 'admin',
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Upload files
+    |--------------------------------------------------------------------------
+    | FileService::storeUpload() menolak extension yang tidak ada di
+    | 'allowed_extensions' (default-deny). Konsumen yang butuh tipe lain
+    | overriding list ini, atau menambahkannya lewat listener Spine:FileUploading
+    | (dilempar SESUDAH validasi core, jadi listener hanya bisa memperketat).
+    |
+    | 'blocked_extensions' selalu menang atas 'allowed_extensions' — dipakai
+    | untuk tipe yang berbahaya kalau-kalau ikut ter-allow karena salah
+    | ketik, atau yang charakter-nya skrip regardless of interpreter.
+    |
+    | Catatan: nama file di-generate ulang oleh unique_filename(), jadi
+    | double-extension seperti "x.php.jpg" tidak bisa terbentuk di disk.
+    | Extension tetap dicek per-segmen supaya penolakan terjadi di boundary,
+    | bukan karena kebetulan penamaan ulang.
+    */
+    'files' => [
+        'allowed_extensions' => [
+            // dokumen
+            'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'odt', 'ods', 'odp',
+            'rtf', 'txt', 'csv', 'md',
+            // gambar
+            'jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'ico', 'tif', 'tiff',
+            // arsip
+            'zip',
+            // data
+            'json', 'xml',
+        ],
+
+        'blocked_extensions' => [
+            // skrip server-side — tidak boleh masuk storage meski disk private
+            'php', 'php3', 'php4', 'php5', 'php7', 'php8', 'phps', 'pht', 'phtm',
+            'phtml', 'phar', 'inc', 'cgi', 'pl', 'py', 'rb', 'sh', 'bash',
+            // konfigurasi server
+            'htaccess', 'htpasswd', 'ini', 'env',
+            // native binary
+            'exe', 'dll', 'so', 'bat', 'cmd', 'com', 'msi', 'scr', 'jar',
+            // shortcut / aktif
+            'js', 'html', 'htm', 'xhtml', 'svg', 'swf',
+        ],
+    ],
 ];
