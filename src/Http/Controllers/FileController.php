@@ -167,12 +167,13 @@ class FileController extends Controller
     }
 
     /**
-     * Maximum upload size (utility, from php.ini).
+     * Maximum upload size (utility, from php.ini) and accepted extensions.
      *
      * @authenticated
      *
      * @response scenario=success {
-     *   "max_bytes": 2097152, "max_human": "2 MB", "max_post_bytes": 8388608
+     *   "max_bytes": 2097152, "max_human": "2 MB", "max_post_bytes": 8388608,
+     *   "allowed_extensions": ["pdf", "png", "zip"], "blocked_extensions": ["php"]
      * }
      */
     public function limits(): JsonResponse
@@ -183,6 +184,8 @@ class FileController extends Controller
             'max_bytes' => $maxBytes,
             'max_human' => $this->file->bytes_to_size($maxBytes),
             'max_post_bytes' => $this->file->parse_size(ini_get('post_max_size') ?: '0'),
+            'allowed_extensions' => $this->file->allowedExtensions(),
+            'blocked_extensions' => $this->file->blockedExtensions(),
         ]);
     }
 }
