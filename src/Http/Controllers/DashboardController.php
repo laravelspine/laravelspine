@@ -109,7 +109,7 @@ class DashboardController extends Controller
         }
 
         // Widget dari modul
-        foreach ($this->modules->allEnabled() as $module) {
+        foreach ($this->modules->enabled() as $module) {
             $manifestFile = $module->getPath() . '/manifest.php';
             if (! is_file($manifestFile)) {
                 continue;
