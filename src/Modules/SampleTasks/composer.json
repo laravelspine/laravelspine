@@ -9,10 +9,7 @@
     "autoload": {
         "psr-4": {
             "Modules\\SampleTasks\\": ""
-        },
-        "classmap": [
-            "database/seeders/"
-        ]
+        }
     },
     "extra": {
         "laravel": {
