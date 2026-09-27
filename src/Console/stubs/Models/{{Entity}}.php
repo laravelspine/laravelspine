@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Modules\{{Studly}}\Models;
+namespace Modules\{{Studly}}\app\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;

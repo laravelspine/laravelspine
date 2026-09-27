@@ -5,7 +5,7 @@
     "keywords": ["spine", "{{studly}}"],
     "priority": 0,
     "providers": [
-        "Modules\\{{Studly}}\\Providers\\{{Studly}}ServiceProvider"
+        "Modules\\{{Studly}}\\app\\Providers\\{{Studly}}ServiceProvider"
     ],
     "files": []
 }

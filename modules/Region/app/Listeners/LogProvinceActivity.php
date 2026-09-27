@@ -2,22 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Modules\{{Studly}}\app\Listeners;
+namespace Modules\Region\app\Listeners;
 
-use Modules\{{Studly}}\app\Models\{{Entity}};
+use Modules\Region\app\Models\Province;
+use Modules\Region\app\Models\Regency;
 use Spine\Events\EntityCreated;
 use Spine\Events\EntityDeleted;
 use Spine\Events\EntityUpdated;
 use Spine\Services\ActivityLogService;
 
-/**
- * HOOK — entity lifecycle generic (HasLifecycleHooks) untuk {{Entity}}.
- *
- * 1. created/updated/deleted -> activity log (satu listener, semua entity).
- * 2. STATUS-CHANGE pattern: EntityUpdated mengecek changes['status'] /
- *    changes['is_active'] — padanan status_changed di legacy.
- */
-class Log{{Entity}}Activity
+class LogProvinceActivity
 {
     public function __construct(private readonly ActivityLogService $activityLog)
     {
@@ -25,12 +19,12 @@ class Log{{Entity}}Activity
 
     public function created(EntityCreated $event): void
     {
-        if (! $event->entity instanceof {{Entity}}) {
+        if (! $event->entity instanceof Province) {
             return;
         }
 
         $this->activityLog->log(
-            "{{Entity}} created: " . $this->label($event->entity),
+            "Province created: " . $this->label($event->entity),
             $event->entity,
             $this->user(),
             ['event' => 'created'],
@@ -39,38 +33,28 @@ class Log{{Entity}}Activity
 
     public function updated(EntityUpdated $event): void
     {
-        if (! $event->entity instanceof {{Entity}}) {
+        if (! $event->entity instanceof Province) {
             return;
         }
 
         $changes = $event->changes;
 
         $this->activityLog->log(
-            "{{Entity}} updated: " . $this->label($event->entity) . " (" . $this->describe($changes) . ")",
+            "Province updated: " . $this->label($event->entity) . " (" . $this->describe($changes) . ")",
             $event->entity,
             $this->user(),
             ['event' => 'updated', 'changes' => $changes],
         );
-
-        $status = $changes['status'] ?? $changes['is_active'] ?? null;
-        if ($status && $status['old'] !== $status['new']) {
-            $this->activityLog->log(
-                "{{Entity}} status changed: {$status['old']} -> {$status['new']}",
-                $event->entity,
-                $this->user(),
-                ['event' => '{{entity}}.status_changed', 'old' => $status['old'], 'new' => $status['new']],
-            );
-        }
     }
 
     public function deleted(EntityDeleted $event): void
     {
-        if (! $event->entity instanceof {{Entity}}) {
+        if (! $event->entity instanceof Province) {
             return;
         }
 
         $this->activityLog->log(
-            "{{Entity}} deleted: " . $this->label($event->entity),
+            "Province deleted: " . $this->label($event->entity),
             null,
             $this->user(),
             ['event' => 'deleted', 'id' => $event->entity->getKey()],
@@ -88,7 +72,7 @@ class Log{{Entity}}Activity
                 continue;
             }
 
-            $label = (method_exists({{Entity}}::class, 'labels') ? ({{Entity}}::labels()[$field] ?? $field) : $field);
+            $label = (method_exists(Province::class, 'labels') ? (Province::labels()[$field] ?? $field) : $field);
             $parts[] = $label . ': ' . $change['old'] . ' → ' . $change['new'];
         }
 

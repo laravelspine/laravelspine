@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Modules\{{Studly}}\Providers;
+namespace Modules\{{Studly}}\app\Providers;
 
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
-use Modules\{{Studly}}\Listeners\Log{{Entity}}Activity;
+use Modules\{{Studly}}\app\Listeners\Log{{Entity}}Activity;
 
 class {{Studly}}ServiceProvider extends ServiceProvider
 {

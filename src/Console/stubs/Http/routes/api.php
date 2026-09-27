@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
-use Modules\{{Studly}}\Http\Controllers\{{Entity}}Controller;
+use Modules\{{Studly}}\app\Http\Controllers\{{Entity}}Controller;
 
 /*
 |--------------------------------------------------------------------------

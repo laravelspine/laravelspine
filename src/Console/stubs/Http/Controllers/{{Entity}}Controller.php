@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Modules\{{Studly}}\Http\Controllers;
+namespace Modules\{{Studly}}\app\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Log;
-use Modules\{{Studly}}\Models\{{Entity}};
+use Modules\{{Studly}}\app\Models\{{Entity}};
 use Spine\Services\ActivityLogService;
 
 /**

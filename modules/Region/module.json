@@ -1,0 +1,16 @@
+{
+    "name": "Region",
+    "alias": "region",
+    "description": "Modul Region — daftar provinsi & kabupaten/kota Indonesia (38 + 514).",
+    "keywords": ["spine", "region", "indonesia", "province", "regency"],
+    "priority": 0,
+    "providers": [
+        "Modules\\Region\\app\\Providers\\RegionServiceProvider"
+    ],
+    "files": [],
+    "migration": {
+        "seeds": [
+            "Modules\\Region\\database\\seeders\\RegionSeeder"
+        ]
+    }
+}
