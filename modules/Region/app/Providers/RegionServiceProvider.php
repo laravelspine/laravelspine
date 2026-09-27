@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Modules\Region\app\Listeners\LogProvinceActivity;
+use Modules\Region\app\Listeners\LogRegencyActivity;
 use Spine\Events\ModuleActivated;
 
 class RegionServiceProvider extends ServiceProvider
@@ -28,6 +29,9 @@ class RegionServiceProvider extends ServiceProvider
         Event::listen(\Spine\Events\EntityCreated::class, LogProvinceActivity::class . '@created');
         Event::listen(\Spine\Events\EntityUpdated::class, LogProvinceActivity::class . '@updated');
         Event::listen(\Spine\Events\EntityDeleted::class, LogProvinceActivity::class . '@deleted');
+        Event::listen(\Spine\Events\EntityCreated::class, LogRegencyActivity::class . '@created');
+        Event::listen(\Spine\Events\EntityUpdated::class, LogRegencyActivity::class . '@updated');
+        Event::listen(\Spine\Events\EntityDeleted::class, LogRegencyActivity::class . '@deleted');
 
         // HOOK — auto-seed saat module diaktifkan (hanya sekali).
         Event::listen(ModuleActivated::class, function ($event) {
