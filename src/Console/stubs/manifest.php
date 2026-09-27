@@ -8,14 +8,20 @@ declare(strict_types=1);
  * 'menu' → Sidebar (padanan add_sidebar_menu_item)
  * 'widgets' → Dashboard per area
  * 'detail_tabs' → panel detail per record (api placeholder {id})
+ * 'settings' → tab settings sistem (admin only)
+ * 'rbac' → deklaratif permission spec (sync via spine:rbac:sync)
  *
- * @return array{menu: list<array{slug: string, label: string, icon: string, href: string, position: int}>, widgets: list<array{id: string, area: string, title: string, api: string}>, detail_tabs: list<array{slug: string, label: string, icon: string, api: string, position: int}>}
+ * @return array{frontend: array{entry_url: string}, menu: list<array>, widgets: list<array>, detail_tabs: list<array>, settings: list<array>, rbac: array}
  */
 return [
+    'frontend' => [
+        'entry_url' => '/api/v1/modules/assets/{{studly}}/{{studly}}.module.js',
+    ],
+
     'menu' => [
         [
             'slug'     => '{{route}}',
-            'label'    => '{{label}}',
+            'label'    => ['namespace' => 'module.{{studly}}', 'key' => 'menu'],
             'icon'     => '📦',
             'href'     => '/{{route}}',
             'position' => 90,
@@ -26,7 +32,7 @@ return [
         [
             'id'    => '{{route}}-items',
             'area'  => 'right-4',
-            'title' => '{{label}}',
+            'title' => ['namespace' => 'module.{{studly}}', 'key' => 'widget'],
             'api'   => '/api/v1/{{route}}',
         ],
     ],
@@ -34,17 +40,55 @@ return [
     'detail_tabs' => [
         [
             'slug'     => 'overview',
-            'label'    => 'Overview',
+            'label'    => ['namespace' => 'module.{{studly}}', 'key' => 'tab_overview'],
             'icon'     => '👁️',
             'api'      => '/api/v1/{{route}}/{id}',
             'position' => 10,
         ],
         [
             'slug'     => 'activity',
-            'label'    => 'Activity',
+            'label'    => ['namespace' => 'module.{{studly}}', 'key' => 'tab_activity'],
             'icon'     => '🕐',
             'api'      => '/api/v1/{{route}}/{id}/activity-logs',
             'position' => 20,
+        ],
+    ],
+
+    'settings' => [
+        [
+            'slug'     => '{{studly}}',
+            'label'    => ['namespace' => 'module.{{studly}}', 'key' => 'title'],
+            'icon'     => '📦',
+            'position' => 51,
+            'fields'   => [
+                [
+                    'key'     => '{{studly}}_prefix',
+                    'label'   => 'Prefix',
+                    'type'    => 'text',
+                    'default' => '{{studly|upper|slice(0,3)}}',
+                ],
+                [
+                    'key'     => '{{studly}}_max_items',
+                    'label'   => 'Max items',
+                    'type'    => 'number',
+                    'default' => '100',
+                ],
+                [
+                    'key'     => '{{studly}}_notify',
+                    'label'   => 'Notify on new item',
+                    'type'    => 'checkbox',
+                    'default' => '1',
+                ],
+            ],
+        ],
+    ],
+
+    'rbac' => [
+        'permissions' => [
+            '{{studly}}.view',
+            '{{studly}}.create',
+            '{{studly}}.edit',
+            '{{studly}}.delete',
         ],
     ],
 ];

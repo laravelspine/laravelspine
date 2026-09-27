@@ -6,16 +6,16 @@ use Illuminate\Support\Facades\Route;
 use Modules\{{Studly}}\app\Http\Controllers\{{Entity}}Controller;
 
 /*
-|--------------------------------------------------------------------------
-| ROUTE MODUL (konvensi core: api/v1 + auth:sanctum)
-|--------------------------------------------------------------------------
-|   GET    /api/v1/{{route}}              (list)
-|   POST   /api/v1/{{route}}
-|   GET    /api/v1/{{route}}/{id}
-|   PUT    /api/v1/{{route}}/{id}
-|   GET    /api/v1/{{route}}/{id}/activity-logs
-|   DELETE /api/v1/{{route}}/{id}
-*/
+ |--------------------------------------------------------------------------
+ | ROUTE MODUL (konvensi core: api/v1 + auth:sanctum)
+ |--------------------------------------------------------------------------
+ |   GET    /api/v1/{{route}}              (list)
+ |   POST   /api/v1/{{route}}
+ |   GET    /api/v1/{{route}}/{id}
+ |   PUT    /api/v1/{{route}}/{id}
+ |   GET    /api/v1/{{route}}/{id}/activity-logs
+ |   DELETE /api/v1/{{route}}/{id}
+ */
 
 Route::prefix('api/v1')->middleware('auth:sanctum')->group(function () {
     Route::prefix('{{route}}')->group(function () {

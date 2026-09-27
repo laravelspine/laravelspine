@@ -25,7 +25,6 @@ class {{Entity}}Controller extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        // Kontrak API Spine: bungkus {data: [...]} — konsisten dengan core.
         $query = {{Entity}}::query();
 {{parent_filter}}
         return response()->json(['data' => $query->orderByDesc('id')->get()]);

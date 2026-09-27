@@ -7,5 +7,10 @@
     "providers": [
         "Modules\\{{Studly}}\\app\\Providers\\{{Studly}}ServiceProvider"
     ],
-    "files": []
+    "files": [],
+    "migration": {
+        "seeds": [
+            "Modules\\{{Studly}}\\database\\seeders\\{{Studly}}Seeder"
+        ]
+    }
 }
