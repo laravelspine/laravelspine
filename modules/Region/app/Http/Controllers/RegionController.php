@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
 use Modules\Region\app\Models\Province;
 use Modules\Region\app\Models\Regency;
 use Spine\Services\ActivityLogService;
@@ -207,5 +208,39 @@ class RegionController extends Controller
         $regency->delete();
 
         return response()->json(['message' => 'Regency deleted']);
+    }
+
+    // ============================================================
+    // INERTIA PAGE METHODS
+    // ============================================================
+
+    /**
+     * Halaman daftar Provinsi (Inertia page).
+     */
+    public function indexPage(): \Inertia\Response
+    {
+        // Module enabled check is handled by crm-web routes; this method is kept
+        // for reference and potential future direct Inertia rendering from spine.
+        return Inertia::render('Region/RegionListPage');
+    }
+
+    /**
+     * Halaman buat Provinsi baru (Inertia page).
+     */
+    public function createPage(): \Inertia\Response
+    {
+        return Inertia::render('Region/RegionCreatePage');
+    }
+
+    /**
+     * Halaman edit Provinsi (Inertia page).
+     */
+    public function editPage(int $id): \Inertia\Response
+    {
+        $province = Province::find($id);
+        if (! $province) {
+            return Inertia::render('NotFound');
+        }
+        return Inertia::render('Region/RegionEditPage', ['id' => $id]);
     }
 }
