@@ -7,6 +7,7 @@ namespace Spine\Http\Controllers;
 use Spine\Services\SettingService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Key-value settings API.
@@ -186,6 +187,84 @@ class SettingController extends Controller
         }
 
         return response()->json(['data' => $out]);
+    }
+
+    /**
+     * Bulk create or update settings.
+     *
+     * Body `values` adalah map key => value; setiap key di-upsert dalam satu
+     * scope tenant. Melengkapi `POST /settings/bulk` yang tetap endpoint BACA
+     * massal — contract lama tidak diubah.
+     *
+     * Seluruh penulisan dibungkus satu transaksi: kalau satu key gagal, tidak
+     * ada settings yang tersimpan sebagian. Event `SettingUpdated` di-dispatch
+     * per key di dalam transaksi, jadi listener yang sudah ter-trigger sebelum
+     * rollback tidak bisa ditarik kembali (sifat bawaan SettingService::set()).
+     *
+     * @authenticated
+     *
+     * @bodyParam values object required Map key => value. Example: {"companyname":"My Company"}
+     * @bodyParam tenant_id integer optional Scope tenant. Null = global. Example: 1
+     *
+     * @response scenario=success {
+     *   "saved": [
+     *     {"key":"companyname","value":"My Company","tenant_id":null}
+     *   ]
+     * }
+     * @response status=422 scenario="invalid payload" {
+     *   "message":"The values field is required.",
+     *   "errors":{"values":["The values field is required."]}
+     * }
+     */
+    public function bulkUpsert(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'values'    => ['required', 'array', 'min:1'],
+            // Nilai harus skalar: array/object akan gagal di-cast kolom `value`.
+            'values.*'  => [fn ($attribute, $value, $fail) => is_scalar($value) || is_null($value)
+                ?: $fail("The {$attribute} must be a scalar value or null.")],
+            'tenant_id' => ['nullable', 'integer'],
+        ]);
+
+        $tenantId = $validated['tenant_id'] ?? null;
+        $saved = [];
+
+        DB::transaction(function () use ($validated, $tenantId, &$saved): void {
+            foreach ($validated['values'] as $key => $value) {
+                $record = $this->settings->set((string) $key, $this->normalizeValue($value), $tenantId);
+
+                $saved[] = [
+                    'key'       => $record->key,
+                    'value'     => $record->value,
+                    'tenant_id' => $record->tenant_id,
+                ];
+            }
+        });
+
+        return response()->json(['saved' => $saved]);
+    }
+
+    /**
+     * Normalize a submitted value into the text form stored in `settings.value`.
+     *
+     * Checkbox dikirim sebagai boolean dan kolom `value` di-cast string, sehingga
+     * `false` tersimpan sebagai "" — tidak konsisten dengan default schema yang
+     * memakai "1"/"0". Jadi boolean dinormalkan ke "1"/"0".
+     *
+     * @param mixed $value Raw value as submitted
+     * @return string|null Value ready for storage (null stays null)
+     */
+    protected function normalizeValue(mixed $value): ?string
+    {
+        if (is_bool($value)) {
+            return $value ? '1' : '0';
+        }
+
+        if (is_null($value)) {
+            return null;
+        }
+
+        return (string) $value;
     }
 
     /**

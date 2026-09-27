@@ -81,10 +81,16 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         : [];
 
     Route::get('/settings/schema', [SettingController::class, 'schema'])->middleware($settingsRead);
+    // Bulk TULIS per koleksi (tanpa {key}) — didahulukan supaya tidak tertukar
+    // dengan wildcard di bawah. Body: {"values":{key:value},"tenant_id":null}
+    Route::put('/settings', [SettingController::class, 'bulkUpsert'])->middleware($settingsWrite);
     Route::get('/settings/{key}', [SettingController::class, 'show'])->middleware($settingsRead);
     Route::put('/settings/{key}', [SettingController::class, 'upsert'])->middleware($settingsWrite);
     Route::delete('/settings/{key}', [SettingController::class, 'destroy'])->middleware($settingsWrite);
-    Route::post('/settings/bulk', [SettingController::class, 'bulk'])->middleware($settingsWrite);
+    // POST /settings/bulk = BACA massal (body {"keys":[...]}), bukan tulis.
+    // Versi tulis ada di bulkUpsert() di atas. Dipakai juga sebagai
+    // POST /profile/bulk.
+    Route::post('/settings/bulk', [SettingController::class, 'bulk'])->middleware($settingsRead);
 
     // Profile Settings (per-user, tanpa permission restriction)
     Route::get('/profile/schema', [SettingController::class, 'profileSchema']);

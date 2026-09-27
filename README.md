@@ -21,7 +21,7 @@ Spine is an API-first, modular core for Laravel 12. It provides the cross-cuttin
 
 | Area | Endpoints (all under `/api/v1`, `auth:sanctum`) |
 |------|--------------------------------------------------|
-| Settings | `GET/PUT/DELETE /settings/{key}`, `POST /settings/bulk` |
+| Settings | `GET/PUT/DELETE /settings/{key}`, `PUT /settings` (bulk upsert), `POST /settings/bulk` (bulk read) |
 | Activity logs | `GET/POST /activity-logs`, `GET/DELETE /activity-logs/{id}` |
 | Custom meta | `GET/POST /meta/{type}/{id}`, `GET/PUT/DELETE /meta/{type}/{id}/{key}` |
 | Relations | `GET /relations/types`, `GET /relations/{type}/{id}` |

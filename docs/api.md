@@ -36,10 +36,11 @@ Or use session cookie for web apps.
 | Method | Path | Description |
 |--------|------|-------------|
 | GET | `/settings/schema` | Get settings tabs & fields |
+| PUT | `/settings` | Bulk upsert settings — body `{"values":{key:value},"tenant_id":null}` |
 | GET | `/settings/{key}` | Get single setting |
 | PUT | `/settings/{key}` | Update single setting |
 | DELETE | `/settings/{key}` | Delete setting |
-| POST | `/settings/bulk` | Bulk update settings |
+| POST | `/settings/bulk` | Bulk **read** settings — body `{"keys":[...]}`. Not a write; use `PUT /settings` |
 
 ---
 
