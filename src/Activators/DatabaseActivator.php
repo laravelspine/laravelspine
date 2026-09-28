@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Spine\Activators;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Nwidart\Modules\Module;
 use Nwidart\Modules\Contracts\ActivatorInterface;
 
@@ -14,6 +15,10 @@ class DatabaseActivator implements ActivatorInterface
 
     public function hasStatus(Module|string $module, bool $status): bool
     {
+        if (! $this->tableExists()) {
+            return false;
+        }
+
         $name = is_string($module) ? $module : $module->getName();
 
         $record = DB::table($this->table)
@@ -66,6 +71,10 @@ class DatabaseActivator implements ActivatorInterface
 
     public function getAllActive(): array
     {
+        if (! $this->tableExists()) {
+            return [];
+        }
+
         return DB::table($this->table)
             ->where('enabled', true)
             ->pluck('name')
@@ -74,6 +83,10 @@ class DatabaseActivator implements ActivatorInterface
 
     public function getAllInactive(): array
     {
+        if (! $this->tableExists()) {
+            return [];
+        }
+
         return DB::table($this->table)
             ->where('enabled', false)
             ->pluck('name')
@@ -82,6 +95,10 @@ class DatabaseActivator implements ActivatorInterface
 
     public function countActive(): int
     {
+        if (! $this->tableExists()) {
+            return 0;
+        }
+
         return (int) DB::table($this->table)
             ->where('enabled', true)
             ->count();
@@ -89,6 +106,10 @@ class DatabaseActivator implements ActivatorInterface
 
     public function countInactive(): int
     {
+        if (! $this->tableExists()) {
+            return 0;
+        }
+
         return (int) DB::table($this->table)
             ->where('enabled', false)
             ->count();
@@ -109,5 +130,22 @@ class DatabaseActivator implements ActivatorInterface
                     'updated_at' => now(),
                 ]
             );
+    }
+
+    /**
+     * Read paths run while the framework is still booting, so the table may
+     * legitimately not exist yet. That happens on a fresh install, where
+     * nwidart's ModuleManifest asks for module status before any migration
+     * has run, which otherwise deadlocks `php artisan migrate` with
+     * "no such table: modules". Write paths deliberately do not use this:
+     * failing loudly on a missing table is correct there.
+     *
+     * Not memoised on purpose. In tests the provider boots once and
+     * RefreshDatabase creates the table afterwards, so a cached false would
+     * hide real module state for the rest of the process.
+     */
+    private function tableExists(): bool
+    {
+        return Schema::hasTable($this->table);
     }
 }
