@@ -83,7 +83,7 @@ return [
                     'key'     => 'region_hide_columns',
                     'label'   => 'Hide Columns',
                     'type'    => 'text',
-                    'default' => 'iso_code',
+                    'default' => '',
                 ],
             ],
         ],

@@ -44,7 +44,10 @@ class SettingController extends Controller
     public function schema(): JsonResponse
     {
         // Tab core (Spine) — settings-tabs.php; lalu tab dari manifest modul aktif.
-        $tabs = require __DIR__ . '/../../Config/settings-tabs.php';
+        $tabs = array_map(
+            fn (array $tab): array => $this->withStoredValues($tab),
+            require __DIR__ . '/../../Config/settings-tabs.php'
+        );
 
         foreach ($this->modules->allEnabled() as $module) {
             $manifestFile = $module->getPath() . '/manifest.php';
@@ -56,7 +59,7 @@ class SettingController extends Controller
             foreach ($manifest['settings'] ?? [] as $tab) {
                 // Tandai pemilik tab: konsumen (frontend) hanya menampilkan tab
                 // untuk modul yang benar-benar ia implementasikan.
-                $tabs[] = $tab + ['module' => $module->getLowerName()];
+                $tabs[] = $this->withStoredValues($tab) + ['module' => $module->getLowerName()];
             }
         }
 
@@ -64,6 +67,34 @@ class SettingController extends Controller
         usort($tabs, fn ($a, $b) => ($a['position'] ?? 999) <=> ($b['position'] ?? 999));
 
         return response()->json(['tabs' => $tabs]);
+    }
+
+    /**
+     * Resolve each field's stored value, falling back to the manifest default.
+     *
+     * Without this the schema only ever reports `default`, so anything the
+     * admin saved through the Settings page is invisible to the frontend and
+     * the form silently reverts on reload. `default` is left untouched: it is
+     * the fallback shown as a hint, and the reset-to-default affordance.
+     *
+     * @param  array<string, mixed>  $tab
+     * @return array<string, mixed>
+     */
+    private function withStoredValues(array $tab): array
+    {
+        $fields = [];
+
+        foreach ($tab['fields'] ?? [] as $field) {
+            $key = $field['key'] ?? null;
+
+            $fields[] = $key === null
+                ? $field
+                : $field + [
+                    'value' => $this->settings->get($key, $field['default'] ?? ''),
+                ];
+        }
+
+        return ['fields' => $fields] + $tab;
     }
 
     /**

@@ -83,7 +83,7 @@ return [
                     'key'     => 'sample_hide_columns',
                     'label'   => 'Hide Columns',
                     'type'    => 'text',
-                    'default' => 'quantity,category,weight,dimensions,is_active',
+                    'default' => '',
                 ],
             ],
         ],
