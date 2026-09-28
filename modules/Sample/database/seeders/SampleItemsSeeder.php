@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Modules\Sample\database\seeders;
 
 use Illuminate\Database\Seeder;
-use Modules\Sample\Models\SampleItem;
+use Modules\Sample\app\Models\SampleItem;
 
 class SampleItemsSeeder extends Seeder
 {
@@ -78,3 +78,4 @@ class SampleItemsSeeder extends Seeder
 
         $this->command->info('Sample items seeded successfully!');
     }
+}
