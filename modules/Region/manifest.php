@@ -73,6 +73,12 @@ return [
                     'type'    => 'text',
                     'default' => '',
                 ],
+                [
+                    'key'     => 'region_searchable_columns',
+                    'label'   => 'Searchable Columns',
+                    'type'    => 'text',
+                    'default' => 'name,iso_code',
+                ],
             ],
         ],
     ],

@@ -24,13 +24,13 @@ return [
         'position' => 5,
         'fields'   => [
             [
-                'key'     => 'companyname',
-                'label'   => 'Company Name',
+                'key'     => 'main_domain',
+                'label'   => 'Main Domain',
                 'type'    => 'text',
             ],
             [
-                'key'     => 'main_domain',
-                'label'   => 'Main Domain',
+                'key'     => 'app_name',
+                'label'   => 'Application Name',
                 'type'    => 'text',
             ],
             [
