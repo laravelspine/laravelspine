@@ -29,7 +29,7 @@ class SampleItem extends Model
         self::STATUS_DONE,
     ];
 
-    protected $fillable = ['name', 'description', 'quantity', 'price', 'ulid', 'status'];
+    protected $fillable = ['name', 'description', 'quantity', 'price', 'ulid', 'status', 'weight', 'dimensions', 'category', 'is_active'];
 
     protected $casts = [
         'id'       => 'integer',
