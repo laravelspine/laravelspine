@@ -79,6 +79,12 @@ return [
                     'type'    => 'text',
                     'default' => 'name,iso_code',
                 ],
+                [
+                    'key'     => 'region_hide_columns',
+                    'label'   => 'Hide Columns',
+                    'type'    => 'text',
+                    'default' => 'iso_code',
+                ],
             ],
         ],
     ],

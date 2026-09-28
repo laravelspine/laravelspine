@@ -79,6 +79,12 @@ return [
                     'type'    => 'checkbox',
                     'default' => '1',
                 ],
+                [
+                    'key'     => 'sample_hide_columns',
+                    'label'   => 'Hide Columns',
+                    'type'    => 'text',
+                    'default' => 'quantity,category,weight,dimensions,is_active',
+                ],
             ],
         ],
     ],
