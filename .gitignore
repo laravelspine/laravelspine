@@ -19,3 +19,5 @@ graphify-out/cost.json
 # re-includes them and 4MB of cache files land in every commit
 graphify-out/cache/
 graphify-out/2026-*
+# editor/backup files that were being left untracked
+*.bak
